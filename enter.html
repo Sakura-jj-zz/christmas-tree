@@ -291,7 +291,7 @@
       outStarted = true;
       setTimeout(function(){
         document.body.classList.add('out');
-        setTimeout(function(){ location.href = 'tree.html?grown=1'; }, 420);
+        setTimeout(goTree, 420);
       }, 30);
     }
   }
@@ -315,6 +315,17 @@
     t0 = performance.now();
     running = true;
     if(!rafId) rafId = requestAnimationFrame(loop);
+  }
+
+  /* 跳到圣诞树页：本站内用相对路径；放在别处（比如 CDN 上的单文件）时回落到线上主站 */
+  function goTree(){
+    var url;
+    if(location.protocol === 'file:' || /github\.io$/.test(location.hostname)){
+      url = 'tree.html?grown=1';
+    } else {
+      url = 'https://sakura-jj-zz.github.io/christmas-tree/tree.html?grown=1';
+    }
+    location.href = url;
   }
 
   go.addEventListener('click', begin);
