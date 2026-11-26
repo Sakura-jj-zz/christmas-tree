@@ -366,31 +366,45 @@
   /* 整页飘雪 */
   #snow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
 
-  /* 五个都拆开之后，中间慢慢浮出的一句 */
+  /* 五个都拆开之后，中间缓缓浮出的一句 */
   #wish{
     position:absolute;left:0;right:0;top:44%;text-align:center;z-index:4;
     pointer-events:none;
-    opacity:0;transform:translateY(22px);
-    transition:opacity 2.8s ease .35s, transform 3.2s cubic-bezier(.16,.74,.16,1) .35s;
+    opacity:0;transform:translateY(26px) scale(.985);
+    transition:
+      opacity 4.2s cubic-bezier(.25,.6,.3,1) .5s,
+      transform 5s cubic-bezier(.16,.74,.16,1) .5s;
   }
-  #wish.on{opacity:1;transform:translateY(0)}
+  #wish.on{opacity:1;transform:translateY(0) scale(1)}
   #wish .t{
-    font-family:"Great Vibes","Segoe Script",cursive;
-    font-size:min(5.7vmin,45px);line-height:1.05;
-    color:#fff2f8;white-space:nowrap;
-    text-shadow:0 0 22px rgba(255,70,152,.92), 0 0 62px rgba(255,40,130,.55), 0 0 130px rgba(255,20,110,.28);
+    font-family:"Songti SC","STSong","Noto Serif SC","SimSun",serif;
+    font-weight:300;
+    font-size:min(7vmin,54px);line-height:1.1;
+    letter-spacing:.36em;text-indent:.36em;
+    color:#ffeaf3;white-space:nowrap;
+    text-shadow:
+      0 0 24px rgba(255,120,182,.80),
+      0 0 64px rgba(255,62,146,.45),
+      0 0 132px rgba(255,30,110,.22);
+    transition:letter-spacing 6s cubic-bezier(.16,.74,.16,1) .4s;
   }
+  #wish.on .t{letter-spacing:.16em;text-indent:.16em}
   #wish .d{
-    margin-top:1em;
+    margin-top:1.15em;
     font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-    font-weight:300;font-size:min(2.85vmin,15.5px);letter-spacing:.2em;
-    color:#ffd9ea;text-indent:.2em;
-    text-shadow:0 0 14px rgba(255,96,172,.6), 0 0 40px rgba(255,50,140,.3);
+    font-weight:300;font-size:min(2.8vmin,15px);letter-spacing:.24em;
+    color:rgba(255,222,236,.86);text-indent:.24em;
+    text-shadow:0 0 14px rgba(255,96,172,.55), 0 0 40px rgba(255,50,140,.26);
+    opacity:0;transition:opacity 3.2s ease 2.2s;
   }
+  #wish.on .d{opacity:1}
   #wish .line{
-    display:block;margin:1em auto 0;width:min(34vw,200px);height:1px;
-    background:linear-gradient(90deg, rgba(255,180,215,0), rgba(255,180,215,.72), rgba(255,180,215,0));
+    display:block;margin:1.05em auto 0;width:min(30vw,180px);height:1px;
+    background:linear-gradient(90deg, rgba(255,180,215,0), rgba(255,180,215,.66), rgba(255,180,215,0));
+    transform:scaleX(.4);opacity:0;
+    transition:transform 4.4s cubic-bezier(.16,.74,.16,1) 1.2s, opacity 3.4s ease 1.2s;
   }
+  #wish.on .line{transform:scaleX(1);opacity:1}
 
   #giftHint{
     position:absolute;left:0;right:0;bottom:1.7vh;text-align:center;
@@ -498,7 +512,7 @@
   <div id="giftHint">轻点一个礼物盒 · 里面有一张图和一段话</div>
 
   <div id="wish">
-    <div class="t">All I want is you</div>
+    <div class="t">岁岁平安</div>
     <div class="line"></div>
     <div class="d">五份都拆开了 · 最好的那一份是你</div>
   </div>
@@ -824,35 +838,14 @@
     if(litCount() >= boxes.length) setTimeout(showWish, 700);
   }
 
-  /* 五个都拆开之后：中间浮出一句话，周围一圈星屑慢慢往上飘 */
+  /* 五个都拆开之后：中间缓缓浮出一句话，只留文字，不撒星屑 */
   var wishEl = document.getElementById('wish');
-  var wishOn = false, starTimer = 0;
-
-  function wishStars(strong){
-    if(!wishEl || !discOn) return;
-    var r = wishEl.getBoundingClientRect();
-    var baseY = r.top + r.height*0.62;
-    var seeds = strong ? 5 : 2;
-    for(var k=0;k<seeds;k++){
-      var px = r.left + r.width*(0.14 + 0.72*Math.random());
-      burstAt(px, baseY + rnd(-14, 14), {
-        n: strong ? 48 : 22,
-        spread: strong ? W*0.30 : W*0.20,
-        g: -34,
-        durK: 2.6,
-        szK: strong ? 1.32 : 1.05,
-        gold: true
-      });
-    }
-  }
+  var wishOn = false;
 
   function showWish(){
     if(wishOn || !wishEl) return;
     wishOn = true;
     wishEl.classList.add('on');
-    wishStars(true);
-    if(starTimer) clearInterval(starTimer);
-    starTimer = setInterval(function(){ wishStars(false); }, 3300);
   }
 
   boxes.forEach(function(b, i){
