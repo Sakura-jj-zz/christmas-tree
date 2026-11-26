@@ -383,18 +383,6 @@
     border-radius:6px;padding:0 .22em;margin:0 -.22em;
   }
 
-  #cardTip{
-    position:absolute;right:52px;top:12px;left:auto;transform:none;z-index:3;
-    padding:.34em .86em;border-radius:999px;white-space:nowrap;
-    background:rgba(6,2,10,.58);border:1px solid rgba(255,204,228,.26);
-    -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
-    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-    font-size:min(2vmin,11px);letter-spacing:.12em;color:rgba(255,214,234,.72);
-    pointer-events:none;
-    opacity:0;transition:opacity .9s ease .4s;
-  }
-  #card.on #cardTip{opacity:1}
-
   #cardClose{
     position:absolute;right:9px;top:9px;z-index:4;
     width:30px;height:30px;border-radius:50%;cursor:pointer;
@@ -448,7 +436,7 @@
     color:rgba(255,206,228,.50);pointer-events:none;
   }
 
-  #filePick{display:none}
+  /* 图片和文字都写死在页面里，没有换图/改字的入口 */
 
   /* 树这边播完之后，给一句"点一下"的提示 */
   #nextHint{
@@ -555,15 +543,11 @@
   <div id="card">
     <div class="pic"><img src="https://aka.doubaocdn.com/s/lNmUO0Uscm" alt="" draggable="false"></div>
     <div class="cap">
-      <div class="h" contenteditable="plaintext-only" spellcheck="false"></div>
-      <div class="d" contenteditable="plaintext-only" spellcheck="false">这是我手机里面保存的为数不多的雪景，我喜欢下雪</div>
+      <div class="d">这是我手机里面保存的为数不多的雪景，我喜欢下雪</div>
       <div class="z">-Z</div>
     </div>
-    <div id="cardTip">点图片换图 · 点文字改字</div>
     <button id="cardClose" type="button" aria-label="关闭">×</button>
   </div>
-
-  <input id="filePick" type="file" accept="image/*">
 </div>
 <audio id="song" preload="auto" loop>
   <source src="./song.mp3" type="audio/mpeg">
@@ -722,14 +706,12 @@
   var giftRow   = document.getElementById('giftRow');
   var cardEl    = document.getElementById('card');
   var cardImg   = cardEl ? cardEl.querySelector('.pic img') : null;
-  var cardH     = cardEl ? cardEl.querySelector('.cap .h') : null;
   var cardD     = cardEl ? cardEl.querySelector('.cap .d') : null;
   var cardClose = document.getElementById('cardClose');
-  var filePick  = document.getElementById('filePick');
   var fx        = document.getElementById('fx');
   var fxc       = fx ? fx.getContext('2d') : null;
   var boxes     = giftRow ? Array.prototype.slice.call(giftRow.querySelectorAll('.gbox')) : [];
-  var curCard = -1, pickIdx = 0;
+  var curCard = -1;
 
   /* 五个盒子里默认装的东西：一张图 + 一段话 */
   var GIFTS = [
@@ -741,10 +723,8 @@
   ];
 
   var LS_P = 'xm_photo_', LS_H = 'xm_head_', LS_D = 'xm_desc_';
-  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
-  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
-  /* ?reset=1 ：清掉本机改过的图和字，回到页面里写的默认那一套 */
+  /* ?reset=1 ：清掉以前留在本机的旧改动 */
   if(/[?&]reset=1/.test(location.search)){
     for(var ri=0; ri<GIFTS.length; ri++){
       try{
@@ -754,26 +734,6 @@
       }catch(e){}
     }
     try{ localStorage.removeItem('xm_lit'); }catch(e){}
-  }
-
-  /* 上传的图先压到 1400px 的 jpg 再存，免得把 localStorage 撑爆 */
-  function toDataURL(file, cb){
-    var fr = new FileReader();
-    fr.onload = function(){
-      var im = new Image();
-      im.onload = function(){
-        var mw = 1400, w = im.width, h = im.height;
-        if(Math.max(w,h) > mw){ var k = mw/Math.max(w,h); w = Math.round(w*k); h = Math.round(h*k); }
-        var c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(im, 0, 0, w, h);
-        cb(c.toDataURL('image/jpeg', 0.82));
-      };
-      im.onerror = function(){ cb(null); };
-      im.src = fr.result;
-    };
-    fr.onerror = function(){ cb(null); };
-    fr.readAsDataURL(file);
   }
 
   /* 粒子层 */
@@ -869,11 +829,9 @@
   function openCard(i){
     var g = GIFTS[i];
     if(!g || !cardEl) return;
-    curCard = i; pickIdx = i;
-    var sp = lsGet(LS_P + i), hh = lsGet(LS_H + i), dd = lsGet(LS_D + i);
-    if(cardImg) cardImg.src = sp || g.img;
-    if(cardH) cardH.textContent = hh || g.h;
-    if(cardD) cardD.textContent = dd || g.d;
+    curCard = i;
+    if(cardImg) cardImg.src = g.img;
+    if(cardD) cardD.textContent = g.d;
     cardEl.classList.remove('on');
     void cardEl.offsetWidth;          /* 让文字浮现的动画每次都重放 */
     cardEl.classList.add('on');
@@ -963,34 +921,7 @@
     });
   }
 
-  /* 点卡片里的图 = 换一张本地图片 */
-  if(cardImg){
-    cardImg.addEventListener('click', function(e){
-      e.stopPropagation();
-      if(curCard < 0) return;
-      pickIdx = curCard;
-      if(filePick) filePick.click();
-    });
-  }
-
-  if(filePick){
-    filePick.addEventListener('change', function(){
-      var f = filePick.files && filePick.files[0];
-      filePick.value = '';
-      if(!f || pickIdx < 0) return;
-      toDataURL(f, function(url){
-        if(!url) return;
-        if(cardImg && curCard === pickIdx) cardImg.src = url;
-        try{ localStorage.setItem(LS_P + pickIdx, url); }catch(err){}
-        var r = cardEl ? cardEl.getBoundingClientRect() : null;
-        if(r) cardBurst(r.left + r.width/2, r.top + r.height*0.52, Math.max(r.width, r.height)*0.62);
-      });
-    });
-  }
-
-  /* 改字即时存到本地，下次打开还是你写的 */
-  if(cardH) cardH.addEventListener('input', function(){ if(curCard >= 0) lsSet(LS_H + curCard, cardH.textContent); });
-  if(cardD) cardD.addEventListener('input', function(){ if(curCard >= 0) lsSet(LS_D + curCard, cardD.textContent); });
+  /* 图片和文字都是写好的，不对外提供修改入口 */
 
   window.addEventListener('keydown', function(e){
     if(e.key === 'Escape') closeCard();
