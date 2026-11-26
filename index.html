@@ -68,14 +68,19 @@
   #words .w2{
     margin-top:.62em;
     font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
-    font-weight:300;color:#ffd9ea;letter-spacing:.28em;
+    font-weight:300;color:#ffd9ea;letter-spacing:.14em;
+    font-variant-numeric:tabular-nums;
     text-shadow:0 0 12px rgba(255,96,172,.5), 0 0 30px rgba(255,60,150,.3);
+  }
+  #words .w2 b{
+    font-weight:500;font-size:1.09em;color:#fff3f8;letter-spacing:.01em;
+    text-shadow:0 0 14px rgba(255,120,190,.90), 0 0 38px rgba(255,60,150,.55);
   }
 </style>
 </head>
 <body>
 <canvas id="cv" aria-hidden="true"></canvas>
-<div id="words"><div class="w1">Merry Christmas</div><div class="w2">愿所有的美好都如约而至 · 2026</div></div>
+<div id="words"><div class="w1">Merry Christmas</div><div class="w2">圣诞倒计时 · <b>-- 天 --:--:--</b></div></div>
 <div id="veil"><button id="go" type="button" aria-label="进入">进入</button></div>
 <script>
 (function(){
@@ -83,6 +88,29 @@
   var ctx = cv.getContext('2d');
   var go = document.getElementById('go');
   var words = document.getElementById('words');
+  var countNode = words ? words.querySelector('.w2 b') : null;
+
+  /* 圣诞倒计时：算到最近的一个 12 月 25 日 00:00（本地时间） */
+  function nextXmas(){
+    var now = new Date();
+    var y = now.getFullYear();
+    var t = new Date(y, 11, 25, 0, 0, 0);
+    if(now.getTime() >= t.getTime()) t = new Date(y+1, 11, 25, 0, 0, 0);
+    return t;
+  }
+  function pad2(n){ return n < 10 ? '0'+n : ''+n; }
+  function tickCountdown(){
+    if(!countNode) return;
+    var left = nextXmas().getTime() - new Date().getTime();
+    if(left < 0) left = 0;
+    var dd = Math.floor(left/86400000);
+    var hh = Math.floor(left/3600000) % 24;
+    var mm = Math.floor(left/60000) % 60;
+    var ss = Math.floor(left/1000) % 60;
+    countNode.textContent = dd + ' 天 ' + pad2(hh) + ':' + pad2(mm) + ':' + pad2(ss);
+  }
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
 
   var TAU = Math.PI*2;
   var W = 0, H = 0, DPR = 1;
@@ -258,7 +286,7 @@
       var w1 = words.querySelector('.w1');
       var w2 = words.querySelector('.w2');
       if(w1) w1.style.fontSize = Math.min(W*0.092, H*0.066).toFixed(1) + 'px';
-      if(w2) w2.style.fontSize = Math.min(W*0.026, H*0.020).toFixed(1) + 'px';
+      if(w2) w2.style.fontSize = Math.min(W*0.029, H*0.022).toFixed(1) + 'px';
     }
   }
 
