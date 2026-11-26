@@ -150,6 +150,29 @@
 
   @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
+  /* 树这边播完之后，给一句"点一下"的提示 */
+  #nextHint{
+    position:fixed;left:0;right:0;bottom:4vh;z-index:8;
+    text-align:center;pointer-events:none;
+    opacity:0;transform:translateY(10px);
+    transition:opacity 1.5s ease, transform 1.5s cubic-bezier(.18,.72,.18,1);
+  }
+  #nextHint span{
+    display:inline-block;
+    padding:.72em 1.5em .72em 1.78em;
+    border-radius:999px;
+    background:rgba(6,2,10,.62);
+    border:1px solid rgba(255,204,228,.34);
+    box-shadow:0 0 22px rgba(255,80,150,.20), 0 0 60px rgba(255,40,120,.10);
+    -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    font-weight:300;font-size:min(2.8vmin,16px);letter-spacing:.26em;
+    color:#ffe3f0;
+    text-shadow:0 0 14px rgba(255,96,172,.65), 0 0 38px rgba(255,60,150,.32);
+  }
+  #nextHint.show{opacity:1;transform:translateY(0);animation:hintBreath 2.8s ease-in-out infinite}
+  @keyframes hintBreath{0%,100%{opacity:.66}50%{opacity:1}}
+
   /* 树全部亮起来之后浮现的文字 */
   #words{
     position:fixed;left:0;right:0;top:0;
@@ -181,6 +204,7 @@
 <canvas id="cv" aria-hidden="true"></canvas>
 <div id="words"><div class="w1">Merry Christmas</div><div class="w2">圣诞倒计时 · <b>-- 天 --:--:--</b></div></div>
 <div id="veil"><button id="go" type="button" aria-label="进入">进入</button></div>
+<div id="nextHint"><span>轻触画面 · 聆听下一幕</span></div>
 
 <div id="discStage">
   <div id="discGlow"></div>
@@ -213,7 +237,8 @@
   var discStage = document.getElementById('discStage');
   var discGlow = document.getElementById('discGlow');
   var discWrap = document.getElementById('discWrap');
-  var discOn = false;
+  var nextHint = document.getElementById('nextHint');
+  var discOn = false, hintShown = false;
   var actx = null, analyser = null, freqData = null;
 
   /* 音频要在用户点「进入」时先"播一下再停"，之后动画播完自动 play 才不会被拦 */
@@ -246,6 +271,19 @@
       analyser.connect(actx.destination);
       if(actx.state === 'suspended') actx.resume();
     }catch(e){ actx = null; analyser = null; }
+  }
+
+  function showHint(){
+    if(hintShown || !nextHint) return;
+    hintShown = true;
+    nextHint.classList.add('show');
+  }
+
+  /* 第二页 → 第三页：等提示出来后，点一下画面才翻过去 */
+  function tryNext(){
+    if(!started || discOn || !hintShown) return;
+    if(nextHint) nextHint.classList.remove('show');
+    showDisc(false);
   }
 
   function showDisc(instant){
@@ -332,7 +370,8 @@
   var T_GIFT  = 7.55;   /* 树脚开始由粒子堆出礼物盒 */
   var T_GIFTD = 1.35;   /* 堆出用时 */
   var T_TEXT  = 9.00;   /* 文字浮现 */
-  var T_DISC  = 11.10;  /* 转到第二页：唱片升起 + 音乐开始 */
+  var T_HINT  = 10.30;  /* 树这边播完，浮出"轻触画面"的提示 */
+  var T_DISC  = 11.30;  /* 提示出现后，点一下就能翻到唱片页 */
 
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
@@ -758,8 +797,8 @@
       words.classList.add('show');
     }
 
-    /* 树和字都亮稳之后，翻到第二页：唱片升起、音乐开始 */
-    if(t >= T_DISC) showDisc(false);
+    /* 树和字都亮稳之后，浮出"轻触画面"的提示；点一下才翻到唱片页 */
+    if(t >= T_HINT) showHint();
   }
 
   function loop(ts){
@@ -789,7 +828,7 @@
     if(reduced){
       T_BURST = 0.55; T_GATHER = 1.05; T_GDUR = 1.5; T_GROW = 2.45; T_GROWD = 1.9;
       T_GIFT = 3.55; T_GIFTD = 0.95;
-      T_TEXT = 4.45; T_DISC = 5.60;
+      T_TEXT = 4.45; T_HINT = 5.10; T_DISC = 5.60;
     }
     t0 = performance.now();
     running = true;
@@ -799,8 +838,12 @@
 
   go.addEventListener('click', begin);
   cv.addEventListener('click', begin);   /* 点画面任意处也能开始 */
+  window.addEventListener('click', tryNext);   /* 提示出来后，再点一下就进唱片页 */
   window.addEventListener('keydown', function(e){
-    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){ e.preventDefault(); begin(); }
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+      e.preventDefault();
+      if(started) tryNext(); else begin();
+    }
   });
 
   var rzTimer = 0;
@@ -822,6 +865,7 @@
       words.style.transform = 'none';
     }
     draw(FREEZE);                       /* 先同步画一帧，窗口不在前台时也能看到这一帧 */
+    if(FREEZE >= T_HINT) showHint();
     if(FREEZE >= T_DISC) showDisc(true); /* 定格在唱片页时直接显示，方便截图检查 */
     if(!rafId) rafId = requestAnimationFrame(loop);
   } else if(!reduced){
