@@ -1020,8 +1020,8 @@ function start(){
   lastTs = 0;
   running = true;
   if(!rafId) rafId = requestAnimationFrame(animate);
-  /* 进页面先自己长一次 */
-  setTimeout(grow, 340);
+  /* 进页面先自己长一次；从封面页带着 grown=1 过来时，那棵树在封面上已经长好了，直接给满树 */
+  if(!/[?&]grown=1/.test(location.search)) setTimeout(grow, 340);
 }
 
 var rzTimer = 0;
