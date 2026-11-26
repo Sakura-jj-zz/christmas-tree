@@ -89,6 +89,7 @@
   var cx = 0, cy0 = 0, topY = 0, groundY = 0, treeH = 0, baseR = 0, Rmax = 0, starR = 0;
 
   var P = [];              /* 粒子 */
+  var G = [];              /* 礼物盒粒子 */
   var started = false, running = false, t0 = 0, rafId = 0, outStarted = false;
   var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
@@ -100,11 +101,13 @@
   /* 时间轴（秒）—— 不做跳转，这场动画就是全部内容 */
   var T_STAR  = 0.00;   /* 第一颗星升起 */
   var T_BURST = 0.72;   /* 爆炸起点 */
-  var T_GATHER= 1.50;   /* 开始聚拢 */
-  var T_GDUR  = 2.55;   /* 聚拢用时 */
-  var T_GROW  = 3.82;   /* 由下往上铺满粒子 */
+  var T_GATHER= 1.90;   /* 开始聚拢 */
+  var T_GDUR  = 2.50;   /* 聚拢用时 */
+  var T_GROW  = 4.45;   /* 由下往上铺满粒子 */
   var T_GROWD = 3.55;   /* 铺满用时 */
-  var T_TEXT  = 7.72;   /* 文字浮现 */
+  var T_GIFT  = 7.55;   /* 树脚开始由粒子堆出礼物盒 */
+  var T_GIFTD = 1.35;   /* 堆出用时 */
+  var T_TEXT  = 9.00;   /* 文字浮现 */
 
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
@@ -112,25 +115,26 @@
   function easeInOutCubic(x){ return x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
 
   var COLORS = ['255,249,238','255,240,214','255,226,186','250,252,255','255,214,232'];
+  var DECO   = ['255,206,104','255,100,152','128,228,255','204,164,255','255,168,92'];
 
   function build(){
     cx = W*0.5;
-    topY = H*0.268;
-    groundY = H*0.866;
+    topY = H*0.205;
+    groundY = H*0.890;
     treeH = groundY - topY;
-    baseR = treeH*0.225;
-    cy0 = H*0.395;              /* 星星 / 爆炸中心 */
-    Rmax = Math.max(W,H)*0.40;
-    starR = Math.min(W,H)*0.085;
+    baseR = treeH*0.345;
+    cy0 = H*0.360;              /* 星星 / 爆炸中心 */
+    Rmax = Math.max(W,H)*0.34;
+    starR = Math.min(W,H)*0.075;
 
-    var N = clamp(Math.round(W*H/235), 2400, 4400);
+    var N = clamp(Math.round(W*H/190), 3000, 5600);
     var turns = 11.5;
     P.length = 0;
 
     for(var i=0;i<N;i++){
-      var u = i/(N-1);                       /* 0 = 树顶, 1 = 树脚 */
+      var u = Math.pow(i/(N-1), 0.78);       /* 0 = 树顶, 1 = 树脚；底部面积大，粒子更多 */
       var yBase = topY + treeH*u;
-      var coneR = baseR*Math.pow(u, 1.06);
+      var coneR = baseR*(0.055 + 0.945*Math.pow(u, 1.12));
       var inner = (i % 5) >= 3;              /* 40% 落在锥体内部，把圈与圈之间的空隙填满 */
       var tx, ty;
 
@@ -147,22 +151,96 @@
         ty = yBase + Math.sin(a1)*r1*0.075 + rnd(-5,5);
       }
 
+      var isDeco = !inner && (i % 13 === 0);
+
       P.push({
         tx: tx,
         ty: ty,
         u: u,                                /* 在树上的高度位置，0顶1脚 */
         inner: inner ? 1 : 0,
+        deco: isDeco ? 1 : 0,
         frame: (i%8===0) ? 1 : 0,            /* 1 = 先落位的骨架，其余等生长阶段点亮 */
         ang: rnd(0,TAU),                     /* 炸开方向 */
-        br: Math.pow(Math.random(), 1.45),   /* 炸开距离系数：中心更密 */
+        br: Math.pow(Math.random(), 1.85),   /* 炸开距离系数：中心更密 */
         dly: rnd(0,0.30),                    /* 起爆延迟 */
-        sz: rnd(0.40,1.45)*(inner?0.9:1),
-        c: COLORS[(Math.random()*COLORS.length)|0],
-        big: Math.random()<0.16,
+        sz: (isDeco ? rnd(0.95,1.65) : rnd(0.40,1.45)*(inner?0.9:1)) * (0.58 + 0.42*Math.min(1, u*3.2)),
+        c: isDeco ? DECO[(Math.random()*DECO.length)|0] : COLORS[(Math.random()*COLORS.length)|0],
+        big: isDeco ? 1 : (Math.random()<0.26),
         trail: Math.random()<0.34,
         ph: rnd(0,TAU),
         lx: null, ly: null
       });
+    }
+
+    buildGifts();
+  }
+
+  /* 树脚用粒子堆起来的礼物盒 */
+  function buildGifts(){
+    G.length = 0;
+    var s = Math.min(W,H);
+    var by = groundY + H*0.014;
+
+    giftBox(cx - s*0.225, by,           s*0.112, s*0.070, s*0.052, '236,78,88',   '255,206,132');
+    giftBox(cx + s*0.168, by + s*0.004, s*0.088, s*0.056, s*0.042, '86,176,255',  '255,222,150');
+    giftBox(cx + s*0.265, by - s*0.002, s*0.062, s*0.042, s*0.030, '236,110,186', '255,232,176');
+  }
+
+  function giftBox(gx, gy, w, h, d, boxC, ribC){
+    var f = w*0.5;
+    var ribH = w*0.085;
+    var step = Math.max(1.8, w*0.026);
+
+    function push(x, y, c, sz, dly){
+      var onRib = Math.abs(x - gx) < ribH;
+      G.push({
+        x: x, y: y,
+        c: onRib ? ribC : c,
+        sz: sz || rnd(0.55,1.10),
+        ph: rnd(0,TAU),
+        dly: dly !== undefined ? dly : clamp((gy - y)/(h*1.6 + d*0.8)*0.58 + rnd(0,0.22), 0, 0.88)
+      });
+    }
+
+    var nc = Math.max(6, Math.round(w/step));
+    var nr = Math.max(4, Math.round(h/step));
+    var nd = Math.max(3, Math.round(d*0.5/step));
+
+    /* 正面 */
+    for(var i=0;i<nc;i++){
+      var px = (gx-f) + (i+0.5)*w/nc;
+      for(var j=0;j<nr;j++){
+        push(px + rnd(-1.1,1.1), gy - (j+0.5)*h/nr + rnd(-1.1,1.1), boxC);
+      }
+    }
+
+    /* 右侧面：向右后上方斜 */
+    for(var k=0;k<nd;k++){
+      var t2 = (k+0.5)/nd;
+      for(var j2=0;j2<nr;j2++){
+        push((gx+f) + t2*d*0.5 + rnd(-1.1,1.1),
+             gy - (j2+0.5)*h/nr - t2*d*0.5 + rnd(-1.1,1.1), boxC);
+      }
+    }
+
+    /* 顶面 */
+    var nc3 = Math.max(5, Math.round(w/step));
+    var nd3 = Math.max(3, Math.round(d*0.5/step));
+    for(var m=0;m<nc3;m++){
+      for(var n=0;n<nd3;n++){
+        var tt = (n+0.5)/nd3;
+        push((gx-f) + (m+0.5)*w/nc3 + tt*d*0.5 + rnd(-1.1,1.1),
+             (gy-h) - tt*d*0.5 + rnd(-1.1,1.1), boxC);
+      }
+    }
+
+    /* 顶上的蝴蝶结 */
+    var bowR = w*0.115, bx = gx, byy = gy - h - d*0.30;
+    for(var q=0;q<2;q++){
+      for(var a5=0;a5<TAU;a5+=0.34){
+        push(bx + (q?1:-1)*bowR*0.52 + Math.cos(a5)*bowR*0.60,
+             byy + Math.sin(a5)*bowR*0.36, ribC, rnd(0.55,1.05), 0.84 + q*0.04);
+      }
     }
   }
 
@@ -176,11 +254,11 @@
 
     /* 文字排版：居中在树的正上方 */
     if(words){
-      words.style.top = (H*0.052).toFixed(1) + 'px';
+      words.style.top = (H*0.030).toFixed(1) + 'px';
       var w1 = words.querySelector('.w1');
       var w2 = words.querySelector('.w2');
-      if(w1) w1.style.fontSize = Math.min(W*0.108, H*0.084).toFixed(1) + 'px';
-      if(w2) w2.style.fontSize = Math.min(W*0.030, H*0.023).toFixed(1) + 'px';
+      if(w1) w1.style.fontSize = Math.min(W*0.092, H*0.066).toFixed(1) + 'px';
+      if(w2) w2.style.fontSize = Math.min(W*0.026, H*0.020).toFixed(1) + 'px';
     }
   }
 
@@ -235,7 +313,7 @@
     }
 
     /* 爆炸瞬间的整屏闪光：中心亮、边缘暗 */
-    var fl = clamp((t - T_BURST)/0.09, 0, 1) * (1 - clamp((t - T_BURST - 0.16)/0.62, 0, 1));
+    var fl = clamp((t - T_BURST)/0.09, 0, 1) * (1 - clamp((t - T_BURST - 0.14)/0.40, 0, 1));
     if(fl > 0.002){
       ctx.globalCompositeOperation = 'lighter';
       var fg = ctx.createRadialGradient(cx, cy0, 0, cx, cy0, Math.max(W,H)*0.62);
@@ -248,7 +326,7 @@
     }
 
     /* 爆炸核心的强光 */
-    var coreA = clamp((t - T_BURST)/0.12, 0, 1) * (1 - clamp((t - T_BURST - 0.12)/0.72, 0, 1));
+    var coreA = clamp((t - T_BURST)/0.12, 0, 1) * (1 - clamp((t - T_BURST - 0.10)/0.46, 0, 1));
     if(coreA > 0.01){
       flare(cx, cy0, starR*1.05, coreA*0.85, t*0.4);
       ctx.globalCompositeOperation = 'lighter';
@@ -273,7 +351,7 @@
     ctx.globalCompositeOperation = 'lighter';
     for(var i=0;i<P.length;i++){
       var p = P[i];
-      var bt = clamp((t - T_BURST - p.dly)/1.02, 0, 1);
+      var bt = clamp((t - T_BURST - p.dly)/1.35, 0, 1);
       if(bt <= 0) continue;
       var be = easeOutCubic(bt);
       var mt = clamp((t - T_GATHER - p.dly*0.62)/T_GDUR, 0, 1);
@@ -290,12 +368,13 @@
       var y = yb + (1-easeOutCubic(act))*22*me;   /* 还没亮起的粒子在目标点下方一点点，随点亮升起 */
 
       var a = clamp(bt*3.2, 0, 1);
-      a *= 0.55 + 0.45*me;                        /* 落位时更实 */
-      a *= p.frame ? 0.42 : (0.11 + 0.89*easeOutCubic(act));
-      a *= p.inner ? 0.52 : 1;                    /* 内部填充点暗一点，保住螺旋的主线 */
+      a *= 0.76 + 0.24*me;                        /* 落位时更实 */
+      a *= p.frame ? 0.55 : (0.16 + 0.84*easeOutCubic(act));
+      a *= p.inner ? (0.52 + 0.44*(1-me)) : 1;    /* 内部填充平时暗一点；爆开时照样亮 */
       a *= 0.86 + 0.14*Math.sin(t*2.6 + p.ph);    /* 轻轻呼吸闪烁 */
+      if(mt < 0.55) a *= 1.30;                    /* 漫天飞散阶段亮一档，看着更有爆开的力量 */
 
-      var s = p.sz*(0.82 + 0.30*me);
+      var s = p.sz*(0.82 + 0.30*me)*(1 + 0.55*(1-me));
 
       if(p.trail && p.lx !== null){
         var dx = x - p.lx, dy = y - p.ly;
@@ -312,12 +391,25 @@
         p.lx = x; p.ly = y;
       }
 
-      ctx.fillStyle = 'rgba('+p.c+','+ (a*0.86) +')';
-      ctx.beginPath(); ctx.arc(x, y, s, 0, TAU); ctx.fill();
-
-      if(p.big){
-        ctx.fillStyle = 'rgba('+p.c+','+ (a*0.15) +')';
-        ctx.beginPath(); ctx.arc(x, y, s*4.4, 0, TAU); ctx.fill();
+      if(p.deco){
+        var da = Math.min(1, a*1.30);
+        ctx.fillStyle = 'rgba('+p.c+','+ (da*0.26) +')';
+        ctx.beginPath(); ctx.arc(x, y, s*3.1, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba('+p.c+','+ (da*0.94) +')';
+        ctx.beginPath(); ctx.arc(x, y, s, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,'+ (da*0.66) +')';
+        ctx.beginPath(); ctx.arc(x, y, s*0.40, 0, TAU); ctx.fill();
+      } else {
+        if(mt < 0.50){                          /* 漫天飞散阶段给每颗都加一层柔光，看着更亮 */
+          ctx.fillStyle = 'rgba('+p.c+','+ (a*0.24) +')';
+          ctx.beginPath(); ctx.arc(x, y, s*2.7, 0, TAU); ctx.fill();
+        }
+        ctx.fillStyle = 'rgba('+p.c+','+ (a*0.92) +')';
+        ctx.beginPath(); ctx.arc(x, y, s, 0, TAU); ctx.fill();
+        if(p.big){
+          ctx.fillStyle = 'rgba('+p.c+','+ (a*0.20) +')';
+          ctx.beginPath(); ctx.arc(x, y, s*4.6, 0, TAU); ctx.fill();
+        }
       }
     }
     ctx.globalCompositeOperation = 'source-over';
@@ -349,7 +441,7 @@
       ctx.save();
       ctx.translate(cx, groundY + H*0.012);
       ctx.scale(1, 0.20);
-      var gr = baseR*2.35;
+      var gr = baseR*2.95;
       var gg = ctx.createRadialGradient(0,0,0,0,0,gr);
       gg.addColorStop(0,   'rgba(255,244,222,'+ (0.34*ground) +')');
       gg.addColorStop(0.34,'rgba(255,224,186,'+ (0.18*ground) +')');
@@ -358,6 +450,32 @@
       ctx.beginPath(); ctx.arc(0,0,gr,0,TAU); ctx.fill();
       ctx.restore();
       ctx.globalCompositeOperation = 'source-over';
+    }
+
+    /* 树脚的礼物盒：粒子一颗颗从地面堆出来 */
+    var gq = clamp((t - T_GIFT)/T_GIFTD, 0, 1);
+    if(gq > 0 && G.length){
+      /* 先叠一层柔光，再以正常混合画实点，避免一遍 lighter 把盒子冲成白块 */
+      ctx.globalCompositeOperation = 'lighter';
+      for(var gi=0; gi<G.length; gi++){
+        var g = G[gi];
+        var gpp = clamp((gq - g.dly)/0.42, 0, 1);
+        if(gpp <= 0) continue;
+        var ge = easeOutCubic(gpp);
+        var ga = ge*(0.88 + 0.12*Math.sin(t*2.2 + g.ph));
+        ctx.fillStyle = 'rgba('+g.c+','+ (ga*0.22) +')';
+        ctx.beginPath(); ctx.arc(g.x, g.y + (1-ge)*30, g.sz*3.2, 0, TAU); ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      for(var gi2=0; gi2<G.length; gi2++){
+        var g2 = G[gi2];
+        var gp2 = clamp((gq - g2.dly)/0.42, 0, 1);
+        if(gp2 <= 0) continue;
+        var ge2 = easeOutCubic(gp2);
+        var ga2 = ge2*(0.90 + 0.10*Math.sin(t*2.2 + g2.ph));
+        ctx.fillStyle = 'rgba('+g2.c+','+ (ga2*0.96) +')';
+        ctx.beginPath(); ctx.arc(g2.x, g2.y + (1-ge2)*30, g2.sz, 0, TAU); ctx.fill();
+      }
     }
 
     /* 树顶星：整棵树亮满时才点起来 */
@@ -389,6 +507,7 @@
     /* 就算系统开了"减少动态"，也照常把这场动画放完，只是节奏放快一点 */
     if(reduced){
       T_BURST = 0.55; T_GATHER = 1.05; T_GDUR = 1.5; T_GROW = 2.45; T_GROWD = 1.9;
+      T_GIFT = 3.55; T_GIFTD = 0.95;
       T_TEXT = 4.45;
     }
     t0 = performance.now();
@@ -413,10 +532,16 @@
   ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
 
   if(FREEZE > 0){
-    go.classList.add('off');
+    go.style.display = 'none';
     started = true; running = true;
     t0 = performance.now();
-    if(FREEZE >= T_TEXT && words) words.classList.add('show');
+    if(FREEZE >= T_TEXT && words){
+      words.classList.add('show');
+      words.style.transition = 'none';
+      words.style.opacity = '1';
+      words.style.transform = 'none';
+    }
+    draw(FREEZE);                       /* 先同步画一帧，窗口不在前台时也能看到这一帧 */
     if(!rafId) rafId = requestAnimationFrame(loop);
   }
 
