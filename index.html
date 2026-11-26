@@ -51,6 +51,105 @@
   }
   @media (prefers-reduced-motion: reduce){ #go{animation:none} }
 
+  /* ── 第二页：一棵树种完之后，唱片慢慢升起来 ───────────── */
+  #discStage{
+    position:fixed;inset:0;z-index:9;
+    background:#000;
+    opacity:0;pointer-events:none;
+    transition:opacity 1.5s ease;
+    overflow:hidden;
+  }
+  #discStage.on{opacity:1;pointer-events:auto}
+
+  #discGlow{
+    position:absolute;left:50%;top:50%;
+    width:min(96vmin,96vw);aspect-ratio:1;
+    transform:translate(-50%,-50%) scale(1);
+    background:radial-gradient(circle at 50% 50%,
+      rgba(255,104,166,.46), rgba(255,42,124,.18) 40%, rgba(255,0,90,0) 68%);
+    opacity:.42;
+    will-change:transform,opacity;
+    pointer-events:none;
+  }
+
+  #discTitle{
+    position:absolute;left:0;right:0;top:5.5vh;text-align:center;
+    font-family:"Great Vibes","Segoe Script",cursive;
+    color:#fff0f7;font-size:min(6.4vmin,54px);line-height:1;
+    white-space:nowrap;pointer-events:none;
+    text-shadow:0 0 18px rgba(255,64,150,.85), 0 0 52px rgba(255,38,126,.5);
+    opacity:0;transition:opacity 2s ease .7s;
+  }
+  #discStage.on #discTitle{opacity:1}
+
+  #discWrap{
+    position:absolute;left:50%;top:50%;
+    width:min(70vmin,70vw);aspect-ratio:1;
+    opacity:0;transform:translate(-50%,-50%) scale(.82);
+    transition:opacity 3.4s ease, transform 4.4s cubic-bezier(.16,.70,.18,1);
+  }
+  #discStage.on #discWrap{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+  #disc{
+    position:absolute;inset:0;border-radius:50%;
+    animation:spin 22s linear infinite;
+    background:
+      repeating-radial-gradient(circle at 50% 50%, #14101a 0 3px, #08060d 3px 6px),
+      #08060d;
+    box-shadow:
+      0 0 46px rgba(255,54,138,.30),
+      0 0 130px rgba(255,30,110,.16),
+      inset 0 0 74px rgba(255,255,255,.05),
+      inset 0 0 0 1px rgba(255,255,255,.07);
+  }
+  #sheen{
+    position:absolute;inset:0;border-radius:50%;
+    background:linear-gradient(128deg,
+      rgba(255,255,255,.17) 0%, rgba(255,255,255,.04) 21%,
+      rgba(255,255,255,0) 39%, rgba(255,255,255,0) 61%,
+      rgba(255,255,255,.06) 79%, rgba(255,255,255,.21) 100%);
+    mix-blend-mode:screen;pointer-events:none;
+  }
+  #label{
+    position:absolute;left:50%;top:50%;
+    width:34%;aspect-ratio:1;transform:translate(-50%,-50%);
+    border-radius:50%;
+    z-index:2;
+    background:radial-gradient(circle at 36% 28%, #ffe8f2 0%, #ff9dc5 28%, #f1538f 62%, #9c2356 100%);
+    box-shadow:inset 0 0 22px rgba(120,10,50,.35), 0 0 18px rgba(255,120,180,.25);
+    border:1px solid rgba(255,228,242,.42);
+  }
+  #label .hole{
+    position:absolute;left:50%;top:50%;width:14.5%;aspect-ratio:1;
+    transform:translate(-50%,-50%);border-radius:50%;
+    background:#060509;box-shadow:inset 0 0 10px rgba(0,0,0,.85);
+  }
+  #label .t{
+    position:absolute;left:0;right:0;top:15%;text-align:center;
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:min(3.4vmin,22px);font-weight:600;line-height:1;
+    letter-spacing:.18em;color:#430c26;
+    text-shadow:0 1px 0 rgba(255,255,255,.32);
+  }
+  #label .s{
+    position:absolute;left:0;right:0;bottom:15%;text-align:center;
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:min(2.3vmin,15px);font-weight:500;line-height:1;
+    letter-spacing:.2em;color:#4d0f2b;opacity:.9;
+  }
+
+  #discMeta{
+    position:absolute;left:0;right:0;bottom:7.5vh;text-align:center;
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-weight:300;font-size:min(2.9vmin,17px);letter-spacing:.2em;
+    color:#ffd9ea;pointer-events:none;
+    opacity:0;transition:opacity 2s ease 1.4s;
+    text-shadow:0 0 16px rgba(255,96,172,.55), 0 0 40px rgba(255,60,150,.28);
+  }
+  #discStage.on #discMeta{opacity:1}
+
+  @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
   /* 树全部亮起来之后浮现的文字 */
   #words{
     position:fixed;left:0;right:0;top:0;
@@ -82,6 +181,25 @@
 <canvas id="cv" aria-hidden="true"></canvas>
 <div id="words"><div class="w1">Merry Christmas</div><div class="w2">圣诞倒计时 · <b>-- 天 --:--:--</b></div></div>
 <div id="veil"><button id="go" type="button" aria-label="进入">进入</button></div>
+
+<div id="discStage">
+  <div id="discGlow"></div>
+  <div id="discTitle">Merry Christmas</div>
+  <div id="discWrap">
+    <div id="disc"></div>
+    <div id="label">
+      <div class="hole"></div>
+      <div class="t">喜欢你</div>
+      <div class="s">陈洁仪</div>
+    </div>
+    <div id="sheen"></div>
+  </div>
+  <div id="discMeta">正在播放 · 喜欢你（现场版）</div>
+</div>
+<audio id="song" preload="auto" loop>
+  <source src="./song.mp3" type="audio/mpeg">
+  <source src="https://aka.doubaocdn.com/s/ZQJgfxHURO" type="audio/mpeg">
+</audio>
 <script>
 (function(){
   var cv = document.getElementById('cv');
@@ -89,6 +207,83 @@
   var go = document.getElementById('go');
   var words = document.getElementById('words');
   var countNode = words ? words.querySelector('.w2 b') : null;
+
+  /* 第二页（唱片）相关 */
+  var song = document.getElementById('song');
+  var discStage = document.getElementById('discStage');
+  var discGlow = document.getElementById('discGlow');
+  var discWrap = document.getElementById('discWrap');
+  var discOn = false;
+  var actx = null, analyser = null, freqData = null;
+
+  /* 音频要在用户点「进入」时先"播一下再停"，之后动画播完自动 play 才不会被拦 */
+  function unlockAudio(){
+    if(!song) return;
+    try{
+      song.volume = 0;
+      var p = song.play();
+      if(p && p.then){
+        p.then(function(){
+          song.pause();
+          try{ song.currentTime = 0; }catch(e){}
+          song.volume = 1;
+        }).catch(function(){ song.volume = 1; });
+      } else {
+        song.pause(); song.currentTime = 0; song.volume = 1;
+      }
+    }catch(e){ song.volume = 1; }
+
+    if(actx || !song) return;
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      actx = new AC();
+      analyser = actx.createAnalyser();
+      analyser.fftSize = 128;
+      freqData = new Uint8Array(analyser.frequencyBinCount);
+      var src = actx.createMediaElementSource(song);
+      src.connect(analyser);
+      analyser.connect(actx.destination);
+      if(actx.state === 'suspended') actx.resume();
+    }catch(e){ actx = null; analyser = null; }
+  }
+
+  function showDisc(instant){
+    if(!discStage) return;
+    if(discOn && !instant) return;
+    discOn = true;
+    if(instant){
+      discStage.style.transition = 'none';
+      discWrap.style.transition = 'none';
+      discStage.style.opacity = '1';
+      discWrap.style.opacity = '1';
+      discWrap.style.transform = 'translate(-50%,-50%) scale(1)';
+      var t1 = document.getElementById('discTitle');
+      var t2 = document.getElementById('discMeta');
+      if(t1){ t1.style.transition='none'; t1.style.opacity='1'; }
+      if(t2){ t2.style.transition='none'; t2.style.opacity='1'; }
+    }
+    discStage.classList.add('on');
+    if(!instant && song){
+      try{
+        song.volume = 1;
+        var p = song.play();
+        if(p && p.catch) p.catch(function(){});
+      }catch(e){}
+      if(actx && actx.state === 'suspended'){ try{ actx.resume(); }catch(e){} }
+    }
+  }
+
+  /* 让外圈光晕跟着音乐音量起伏 */
+  function pulseDisc(){
+    if(!analyser || !freqData || !discGlow || !discOn) return;
+    analyser.getByteFrequencyData(freqData);
+    var sum = 0;
+    for(var i=0;i<freqData.length;i++) sum += freqData[i];
+    var lvl = sum/(freqData.length*255);
+    discGlow.style.opacity = (0.34 + lvl*0.86).toFixed(3);
+    discGlow.style.transform = 'translate(-50%,-50%) scale(' + (1 + lvl*0.10).toFixed(3) + ')';
+  }
 
   /* 圣诞倒计时：算到最近的一个 12 月 25 日 00:00（本地时间） */
   function nextXmas(){
@@ -137,6 +332,7 @@
   var T_GIFT  = 7.55;   /* 树脚开始由粒子堆出礼物盒 */
   var T_GIFTD = 1.35;   /* 堆出用时 */
   var T_TEXT  = 9.00;   /* 文字浮现 */
+  var T_DISC  = 11.10;  /* 转到第二页：唱片升起 + 音乐开始 */
 
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
@@ -561,6 +757,9 @@
     if(t >= T_TEXT && words && !words.classList.contains('show')){
       words.classList.add('show');
     }
+
+    /* 树和字都亮稳之后，翻到第二页：唱片升起、音乐开始 */
+    if(t >= T_DISC) showDisc(false);
   }
 
   function loop(ts){
@@ -575,6 +774,7 @@
       ctx.globalCompositeOperation = 'source-over';
     } else {
       draw(t);
+      pulseDisc();                       /* 外圈光晕跟着音乐起落 */
     }
     rafId = requestAnimationFrame(loop);
     return rafId;
@@ -589,10 +789,11 @@
     if(reduced){
       T_BURST = 0.55; T_GATHER = 1.05; T_GDUR = 1.5; T_GROW = 2.45; T_GROWD = 1.9;
       T_GIFT = 3.55; T_GIFTD = 0.95;
-      T_TEXT = 4.45;
+      T_TEXT = 4.45; T_DISC = 5.60;
     }
     t0 = performance.now();
     running = true;
+    unlockAudio();                        /* 借这次点击把音频解锁，稍后动画播完才能自动播放 */
     if(!rafId) rafId = requestAnimationFrame(loop);
   }
 
@@ -621,6 +822,7 @@
       words.style.transform = 'none';
     }
     draw(FREEZE);                       /* 先同步画一帧，窗口不在前台时也能看到这一帧 */
+    if(FREEZE >= T_DISC) showDisc(true); /* 定格在唱片页时直接显示，方便截图检查 */
     if(!rafId) rafId = requestAnimationFrame(loop);
   } else if(!reduced){
     /* 封面也跑一个轻量循环：只飘雪，首屏不至于完全静止 */
