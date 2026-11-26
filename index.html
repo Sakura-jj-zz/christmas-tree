@@ -564,9 +564,10 @@
   var discWrap = document.getElementById('discWrap');
   var nextHint = document.getElementById('nextHint');
   var discOn = false, hintShown = false;
-  var actx = null, analyser = null, freqData = null;
 
-  /* 音频要在用户点「进入」时先"播一下再停"，之后动画播完自动 play 才不会被拦 */
+  /* 音频要在用户点「进入」时先"播一下再停"，之后动画播完自动 play 才不会被拦。
+     注意：这里刻意不接 Web Audio（createMediaElementSource 一旦接管输出，
+     在某些浏览器壳里会把声音吞掉），光晕改用轻量模拟波形。 */
   function unlockAudio(){
     if(!song) return;
     try{
@@ -582,20 +583,6 @@
         song.pause(); song.currentTime = 0; song.volume = 1;
       }
     }catch(e){ song.volume = 1; }
-
-    if(actx || !song) return;
-    try{
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if(!AC) return;
-      actx = new AC();
-      analyser = actx.createAnalyser();
-      analyser.fftSize = 128;
-      freqData = new Uint8Array(analyser.frequencyBinCount);
-      var src = actx.createMediaElementSource(song);
-      src.connect(analyser);
-      analyser.connect(actx.destination);
-      if(actx.state === 'suspended') actx.resume();
-    }catch(e){ actx = null; analyser = null; }
   }
 
   /* ── 播放控制：自动播放被浏览器拦住时，用这颗按钮出声 ─────────────── */
@@ -623,7 +610,6 @@
         p.then(function(){ setPlayUI(true); }).catch(function(){ setPlayUI(false); });
       } else { setPlayUI(true); }
     }catch(e){ setPlayUI(false); }
-    if(actx && actx.state === 'suspended'){ try{ actx.resume(); }catch(e){} }
   }
 
   /* 音频兜底：直链/CDN 打开时先走 CDN，失败就换下一个源 */
@@ -693,15 +679,21 @@
     if(song) setTimeout(function(){ setPlayUI(!song.paused); }, instant ? 600 : 1600);
   }
 
-  /* 让外圈光晕跟着音乐音量起伏 */
+  /* 让外圈光晕跟着音乐起伏（模拟波形，不依赖 Web Audio，保证任何浏览器都出声） */
   function pulseDisc(){
-    if(!analyser || !freqData || !discGlow || !discOn) return;
-    analyser.getByteFrequencyData(freqData);
-    var sum = 0;
-    for(var i=0;i<freqData.length;i++) sum += freqData[i];
-    var lvl = sum/(freqData.length*255);
-    discGlow.style.opacity = (0.34 + lvl*0.86).toFixed(3);
-    discGlow.style.transform = 'translate(-50%,-50%) scale(' + (1 + lvl*0.10).toFixed(3) + ')';
+    if(!discGlow || !discOn || !song) return;
+    if(song.paused){
+      discGlow.style.opacity = '0.42';
+      discGlow.style.transform = 'translate(-50%,-50%) scale(1)';
+      return;
+    }
+    var t = song.currentTime || 0;
+    var lvl = 0.34
+      + 0.26*Math.abs(Math.sin(t*1.62))
+      + 0.16*Math.abs(Math.sin(t*0.47 + 1.1))
+      + 0.10*Math.abs(Math.sin(t*5.9 + 0.4));
+    discGlow.style.opacity = lvl.toFixed(3);
+    discGlow.style.transform = 'translate(-50%,-50%) scale(' + (1 + lvl*0.13).toFixed(3) + ')';
   }
 
   /* ── 地上的礼物盒：点一下，打开属于它的那张图和那段字 ───────────── */
