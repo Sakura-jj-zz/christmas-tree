@@ -927,10 +927,12 @@ function draw(){
     ctx.globalCompositeOperation = 'source-over';
   }
 
-  /* 生长前沿：贴着"树梢"上升的一道亮光 */
-  if(growP > 0.02 && growP < 0.995){
+  /* 生长前沿：贴着"树梢"上升的一道亮光，接近树顶时交给星芒 */
+  var gapa = clamp((0.88 - growP)/0.10, 0, 1);
+  if(growP > 0.02 && gapa > 0.01){
     var fy = yMin;
     ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = gapa;
     ctx.save();
     ctx.translate(cx, fy);
     ctx.scale(1, 0.19);
@@ -943,6 +945,7 @@ function draw(){
     ctx.fillStyle = rg3;
     ctx.beginPath(); ctx.arc(0,0,rr3,0,6.2832); ctx.fill();
     ctx.restore();
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
   }
 
