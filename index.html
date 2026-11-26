@@ -119,7 +119,6 @@
   var P = [];              /* 粒子 */
   var G = [];              /* 礼物盒粒子 */
   var SNOW = [];           /* 飘雪 */
-  var METEORS = [];        /* 流星 */
   var started = false, running = false, t0 = 0, rafId = 0, outStarted = false;
   var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
@@ -204,7 +203,6 @@
 
     buildGifts();
     buildSnow();
-    buildMeteors();
   }
 
   /* 飘雪：位置只由时间算出，所以定格某一秒也能正确显示 */
@@ -225,24 +223,6 @@
     }
   }
 
-  /* 流星：循环播放，隔两三秒就划一条，从上往左下带一条尾迹 */
-  function buildMeteors(){
-    METEORS.length = 0;
-    for(var i=0;i<4;i++){
-      var period = rnd(2.3, 3.6);
-      METEORS.push({
-        period: period,
-        off: rnd(0, period),
-        dur: rnd(0.62, 1.05),
-        x0: rnd(W*0.12, W*0.96),
-        y0: rnd(-H*0.18, H*0.26),
-        ang: Math.PI*(0.74 + rnd(-0.06, 0.06)),
-        len: rnd(110, 240),
-        wide: rnd(1.6, 3.4)
-      });
-    }
-  }
-
   function drawSnow(t, mul){
     var span = H + 40;
     for(var i=0;i<SNOW.length;i++){
@@ -259,35 +239,6 @@
       }
       ctx.fillStyle = 'rgba(240,249,255,'+ (a*0.90) +')';
       ctx.beginPath(); ctx.arc(xx, yy, s.r, 0, TAU); ctx.fill();
-    }
-  }
-
-  function drawMeteors(t){
-    for(var i=0;i<METEORS.length;i++){
-      var m = METEORS[i];
-      var ph = (t + m.off) % m.period;
-      if(ph > m.dur) continue;
-      var p = ph/m.dur;
-      var fade = Math.sin(p*Math.PI);
-      var dx = Math.cos(m.ang), dy = Math.sin(m.ang);
-      var dist = m.len*2.4*p;
-      var hx = m.x0 + dx*dist, hy = m.y0 + dy*dist;
-      var tx = hx - dx*m.len*(0.45 + 0.55*p), ty = hy - dy*m.len*(0.45 + 0.55*p);
-
-      var g = ctx.createLinearGradient(hx, hy, tx, ty);
-      g.addColorStop(0,   'rgba(255,255,255,'+ (0.95*fade) +')');
-      g.addColorStop(0.30,'rgba(214,240,255,'+ (0.52*fade) +')');
-      g.addColorStop(1,   'rgba(170,214,255,0)');
-      ctx.strokeStyle = g;
-      ctx.lineWidth = m.wide;
-      ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(tx, ty); ctx.stroke();
-
-      var rg = ctx.createRadialGradient(hx, hy, 0, hx, hy, 9);
-      rg.addColorStop(0, 'rgba(255,255,255,'+ (0.95*fade) +')');
-      rg.addColorStop(0.5, 'rgba(222,244,255,'+ (0.30*fade) +')');
-      rg.addColorStop(1, 'rgba(200,230,255,0)');
-      ctx.fillStyle = rg;
-      ctx.beginPath(); ctx.arc(hx, hy, 9, 0, TAU); ctx.fill();
     }
   }
 
@@ -418,11 +369,6 @@
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = '#000';
     ctx.fillRect(0,0,W,H);
-
-    /* 远处的流星，压在树后面当背景 */
-    ctx.globalCompositeOperation = 'lighter';
-    drawMeteors(t);
-    ctx.globalCompositeOperation = 'source-over';
 
     /* 第一颗星：升起 → 爆炸瞬间被冲开 → 收拢时熄灭 */
     var starIn  = clamp(t/0.62, 0, 1);
