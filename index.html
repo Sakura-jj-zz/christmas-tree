@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>愿这一年的雪，落在你想去的地方</title>
+<meta name="description" content="一棵由光点绕成的圣诞树。写下心愿，它会替你挂上一盏灯。">
+<meta name="theme-color" content="#070E0C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230A1714'/%3E%3Cpath d='M16 7 L24.5 26 L7.5 26 Z' fill='%232F6B4F'/%3E%3Ccircle cx='16' cy='6.6' r='2.6' fill='%23E6C078'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600&amp;display=swap">
+<style>
+  :root{
+    --night-0:#050B0D;
+    --night-1:#0A1714;
+    --night-2:#0F241C;
+    --pine:#2F6B4F;
+    --pine-lit:#7EC49E;
+    --gold:#E6C078;
+    --gold-lit:#F8E7BE;
+    --ember:#C9513B;
+    --ink:#EDE8DC;
+    --ink-dim:#9CACA4;
+    --ink-faint:#6B7B74;
+    --serif:"Noto Serif SC","Songti SC","SimSun",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+    --pad:22px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 85% at 72% 8%, #10241C 0%, #0A1714 38%, var(--night-0) 78%),
+      var(--night-0);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:rgba(230,192,120,.32);color:#fff}
+
+  .grain{
+    position:fixed;inset:0;z-index:6;pointer-events:none;
+    opacity:.055;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ===== 首屏 ===== */
+  .hero{
+    position:relative;
+    display:grid;
+    grid-template-rows:1fr auto;
+    min-height:100vh;
+    min-height:100svh;
+    overflow:hidden;
+  }
+  .stage{
+    position:relative;
+    min-height:250px;
+    z-index:0;
+  }
+  #tree{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    display:block;
+    pointer-events:none;
+  }
+  .hero-copy{
+    position:relative;z-index:2;
+    padding:0 var(--pad) 30px;
+    max-width:640px;
+  }
+  .eyebrow{
+    margin:0 0 14px;
+    font-size:.76rem;
+    letter-spacing:.04em;
+    color:var(--gold);
+    opacity:.72;
+    font-family:var(--sans);
+  }
+  h1{
+    margin:0 0 20px;
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.95rem,7.6vw,4.1rem);
+    line-height:1.22;
+    letter-spacing:.01em;
+    text-wrap:balance;
+    color:#F6F1E5;
+  }
+  .lead{
+    margin:0 0 26px;
+    max-width:22em;
+    font-size:.95rem;
+    line-height:1.95;
+    color:var(--ink-dim);
+  }
+  .hero-actions{
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    margin-bottom:30px;
+  }
+  .cta{
+    display:inline-flex;align-items:center;gap:11px;
+    min-height:46px;
+    padding:0 2px;
+    color:var(--gold-lit);
+    text-decoration:none;
+    font-size:.94rem;
+    border-bottom:1px solid rgba(230,192,120,.35);
+    transition:border-color .25s ease,color .25s ease;
+  }
+  .cta .cta-dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 0 0 rgba(230,192,120,.55);
+    transition:box-shadow .35s ease;
+  }
+  .cta:hover,.cta:focus-visible{border-bottom-color:rgba(230,192,120,.9)}
+  .cta:hover .cta-dot{box-shadow:0 0 16px 3px rgba(230,192,120,.5)}
+  .ghost-link{
+    display:inline-flex;align-items:center;min-height:44px;
+    font-size:.88rem;color:var(--ink-faint);text-decoration:none;
+    border-bottom:1px solid transparent;
+    transition:color .25s ease,border-color .25s ease;
+  }
+  .ghost-link:hover,.ghost-link:focus-visible{color:var(--ink-dim);border-bottom-color:rgba(156,172,164,.4)}
+
+  .countdown{
+    display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    padding-top:16px;
+    border-top:1px solid rgba(230,192,120,.16);
+    font-size:.82rem;color:var(--ink-faint);
+  }
+  .countdown b{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:1.24rem;
+    color:var(--gold-lit);
+    font-feature-settings:"tnum";
+    font-variant-numeric:tabular-nums;
+    margin-right:2px;
+  }
+  .countdown i{font-style:normal;color:var(--ink-faint);margin-right:12px;font-size:.78rem}
+  .countdown i:last-child{margin-right:0}
+
+  /* ===== 章节 ===== */
+  main{position:relative;z-index:2}
+  .chapter{
+    padding:76px var(--pad) 0;
+    max-width:1080px;
+    margin:0 auto;
+  }
+  .chapter:last-of-type{padding-bottom:88px}
+  .chapter h2{
+    margin:0 0 26px;
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.5rem,5.2vw,2.35rem);
+    line-height:1.35;
+    letter-spacing:.01em;
+    color:#F4EFE2;
+    max-width:16em;
+  }
+  .rule{
+    height:1px;width:56px;
+    background:rgba(230,192,120,.45);
+    margin:0 0 26px;
+  }
+
+  .split{display:grid;gap:30px}
+  .shot{margin:0}
+  .shot img{
+    display:block;width:100%;height:auto;aspect-ratio:3/2;
+    object-fit:cover;object-position:68% 62%;
+    border-radius:2px;
+    background:#0B1411;
+  }
+  .shot figcaption{
+    margin-top:12px;
+    font-size:.78rem;
+    color:var(--ink-faint);
+    letter-spacing:.02em;
+  }
+  .prose p{
+    margin:0 0 18px;
+    font-size:.95rem;
+    line-height:2;
+    color:var(--ink-dim);
+    max-width:32em;
+  }
+  .prose p:last-child{margin-bottom:0}
+  .prose strong{color:var(--ink);font-weight:400}
+
+  /* ===== 许愿 ===== */
+  .wish-sub{
+    margin:-12px 0 30px;
+    font-size:.9rem;
+    color:var(--ink-faint);
+    max-width:30em;
+    line-height:1.9;
+  }
+  .wish-form{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    margin-bottom:14px;
+  }
+  .wish-form input{
+    flex:1 1 260px;
+    min-width:0;
+    min-height:48px;
+    padding:12px 2px;
+    background:transparent;
+    border:0;
+    border-bottom:1px solid rgba(230,192,120,.3);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    transition:border-color .25s ease;
+  }
+  .wish-form input::placeholder{color:var(--ink-faint)}
+  .wish-form input:focus{
+    outline:none;
+    border-bottom-color:rgba(230,192,120,.85);
+  }
+  .wish-form button{
+    flex:0 0 auto;
+    min-height:48px;
+    padding:0 22px;
+    background:rgba(230,192,120,.10);
+    border:1px solid rgba(230,192,120,.42);
+    border-radius:2px;
+    color:var(--gold-lit);
+    font-family:var(--sans);
+    font-size:.92rem;
+    cursor:pointer;
+    transition:background .25s ease,border-color .25s ease;
+  }
+  .wish-form button:hover{background:rgba(230,192,120,.18);border-color:rgba(230,192,120,.7)}
+  .wish-form button:active{background:rgba(230,192,120,.24)}
+
+  .hint{
+    min-height:22px;
+    font-size:.78rem;
+    color:var(--ember);
+    opacity:0;
+    transition:opacity .2s ease;
+  }
+  .hint.on{opacity:1}
+
+  .wish-list{margin-top:28px;border-top:1px solid rgba(255,255,255,.07)}
+  .wish-empty{
+    padding:26px 0;
+    font-size:.88rem;
+    color:var(--ink-faint);
+  }
+  .wish-item{
+    display:flex;align-items:flex-start;gap:12px;
+    padding:16px 0;
+    border-bottom:1px solid rgba(255,255,255,.055);
+  }
+  .wish-item .bulb{
+    flex:0 0 auto;
+    width:7px;height:7px;margin-top:11px;border-radius:50%;
+    background:var(--gold-lit);
+    box-shadow:0 0 10px 1px rgba(248,231,190,.45);
+  }
+  .wish-item .txt{
+    flex:1 1 auto;min-width:0;
+    font-size:.92rem;line-height:1.8;
+    color:var(--ink);
+    word-break:break-word;
+  }
+  .wish-item .when{
+    flex:0 0 auto;
+    font-size:.72rem;
+    color:var(--ink-faint);
+    padding-top:5px;
+    font-feature-settings:"tnum";
+  }
+  .wish-count{
+    margin:0 0 4px;
+    font-size:.78rem;
+    color:var(--ink-faint);
+    letter-spacing:.03em;
+  }
+
+  footer{
+    padding:0 var(--pad) 46px;
+    max-width:1080px;
+    margin:0 auto;
+  }
+  .foot-inner{
+    display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;
+    padding-top:20px;
+    border-top:1px solid rgba(255,255,255,.07);
+    font-size:.76rem;
+    color:var(--ink-faint);
+  }
+  .foot-inner a{
+    color:var(--ink-faint);
+    text-decoration:none;
+    min-height:44px;display:inline-flex;align-items:center;
+    border-bottom:1px solid transparent;
+    transition:color .25s ease,border-color .25s ease;
+  }
+  .foot-inner a:hover,.foot-inner a:focus-visible{color:var(--gold);border-bottom-color:rgba(230,192,120,.5)}
+
+  .toast{
+    position:fixed;left:50%;bottom:30px;z-index:8;
+    transform:translate(-50%,14px);
+    padding:11px 20px;
+    background:#0F241C;
+    border:1px solid rgba(230,192,120,.4);
+    border-radius:2px;
+    font-size:.84rem;
+    color:var(--gold-lit);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .28s ease,transform .28s cubic-bezier(.22,1,.36,1);
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  :focus-visible{outline:2px solid rgba(230,192,120,.75);outline-offset:3px}
+
+  /* 首屏一次性编排 */
+  @keyframes rise{
+    from{opacity:0;transform:translateY(14px)}
+    to{opacity:1;transform:none}
+  }
+  .hero-copy > *{animation:rise .9s cubic-bezier(.22,1,.36,1) both}
+  .hero-copy > *:nth-child(1){animation-delay:.05s}
+  .hero-copy > *:nth-child(2){animation-delay:.14s}
+  .hero-copy > *:nth-child(3){animation-delay:.26s}
+  .hero-copy > *:nth-child(4){animation-delay:.36s}
+  .hero-copy > *:nth-child(5){animation-delay:.46s}
+  @media (prefers-reduced-motion: reduce){
+    .hero-copy > *{animation:none}
+    .toast{transition:opacity .2s ease}
+  }
+
+  /* ===== 桌面 ===== */
+  @media (min-width:860px){
+    :root{--pad:40px}
+    .hero{
+      display:block;
+      padding:0 0 0 6vw;
+    }
+    .stage{position:absolute;inset:0;min-height:0}
+    .hero-copy{
+      padding:0;
+      max-width:560px;
+      min-height:100vh;
+      min-height:100svh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    h1{font-size:clamp(2.6rem,3.9vw,3.9rem)}
+    .lead{font-size:1rem}
+    .chapter{padding-top:112px}
+    .split{
+      grid-template-columns:1.06fr 1fr;
+      gap:56px;
+      align-items:start;
+    }
+    .chapter h2{font-size:clamp(1.8rem,2.4vw,2.4rem)}
+    .prose p{font-size:1rem}
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ===== 首屏 ===== -->
+<section class="hero">
+  <div class="stage"><canvas id="tree" aria-hidden="true"></canvas></div>
+  <div class="hero-copy">
+    <p class="eyebrow">二〇二六年 · 十二月二十五日</p>
+    <h1>愿这一年的雪，落在你想去的地方</h1>
+    <p class="lead">这里只有一棵树。它不唱歌，也不掉礼物。你把手放上去，它会亮一点；你写下一句话，它会替你记住。</p>
+    <div class="hero-actions">
+      <a class="cta" href="#wish"><span class="cta-dot"></span>挂一盏灯</a>
+      <a class="ghost-link" href="#about">这棵树是怎么回事</a>
+    </div>
+    <div class="countdown" id="countdown" aria-live="polite">
+      <span>距圣诞节</span>
+      <span><b id="cd-d">29</b><i>天</i><b id="cd-h">00</b><i>时</i><b id="cd-m">00</b><i>分</i><b id="cd-s">00</b><i>秒</i></span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <!-- ===== 关于这棵树 ===== -->
+  <section class="chapter" id="about">
+    <div class="rule"></div>
+    <h2>一棵没有叶子的树</h2>
+    <div class="split">
+      <figure class="shot">
+        <img src="assets/christmas-window.jpg" alt="深色窗台上放着一束松枝、两颗橙子和一支点着的蜡烛，窗外是落雪的夜">
+        <figcaption>十二月的窗台。光只够照亮眼前这一点。</figcaption>
+      </figure>
+      <div class="prose">
+        <p>上面那棵树由光点沿一条螺旋排成，从底座绕到顶端，一共八圈。它没有树叶，也没有树皮，<strong>灯串就是它的全部结构</strong>。</p>
+        <p>近处的点亮，远处的点暗；雪落下来，有的快，有的慢。这不是物理，只是想让它看起来像真的。</p>
+        <p>每年十二月，人们把常青树搬进屋里。树不解释什么，它只是站在那里，让房间亮一点。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 许愿 ===== -->
+  <section class="chapter" id="wish">
+    <div class="rule"></div>
+    <h2>把一句话，挂上去</h2>
+    <p class="wish-sub">写下的心愿会变成树上的一盏灯，只留在这台设备上——不上传，也不发给任何人。</p>
+    <form class="wish-form" id="wishForm" autocomplete="off">
+      <input id="wishInput" type="text" maxlength="40" placeholder="今年的雪，想和谁一起看？" aria-label="写下你的心愿">
+      <button type="submit">挂到树上</button>
+    </form>
+    <p class="hint" id="wishHint">还没写呢。一句话就够。</p>
+
+    <p class="wish-count" id="wishCount"></p>
+    <div class="wish-list" id="wishList">
+      <p class="wish-empty">还没有灯。第一盏，留给你。</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <span>一棵手工做的树 · 二〇二六</span>
+    <span>心愿只保存在你的浏览器里</span>
+    <a href="#top" id="toTop">回到树顶</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status">已经挂上了</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ================= 首屏：光点圣诞树 ================= */
+  var cvs = document.getElementById('tree');
+  var ctx = cvs && cvs.getContext ? cvs.getContext('2d') : null;
+  var reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var reduce = reduceMQ.matches;
+
+  var W = 0, H = 0, DPR = 1;
+  var cx = 0, cy = 0, treeH = 0, baseR = 0, persp = 0, desk = false;
+  var pts = [], flakes = [], sky = [], sprites = [];
+  var wishLights = [];
+  var rotSmooth = 0, rotTarget = 0, rotAuto = 0;
+  var t0 = performance.now();
+  var running = true;
+  var rafId = null;
+
+  var COLORS = [
+    [222, 236, 231], /* 霜白 */
+    [126, 196, 158], /* 松绿 */
+    [248, 231, 190], /* 暖金 */
+    [201, 81, 59]    /* 胭脂 */
+  ];
+
+  function buildSprites(){
+    sprites = COLORS.map(function(c){
+      var s = document.createElement('canvas');
+      s.width = s.height = 64;
+      var g = s.getContext('2d');
+      var grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grd.addColorStop(0, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',1)');
+      grd.addColorStop(0.24, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0.7)');
+      grd.addColorStop(0.56, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0.16)');
+      grd.addColorStop(1, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0)');
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 64, 64);
+      return s;
+    });
+  }
+
+  function measure(){
+    if(!cvs) return;
+    var r = cvs.getBoundingClientRect();
+    W = Math.max(1, Math.round(r.width));
+    H = Math.max(1, Math.round(r.height));
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    cvs.width = Math.round(W * DPR);
+    cvs.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    desk = W >= 860;
+    if(desk){
+      treeH = Math.min(H * 0.76, 740);
+      cx = W * 0.69;
+      cy = H * 0.52;
+    }else{
+      treeH = Math.min(H * 0.9, W * 1.02, 440);
+      cx = W * 0.5;
+      cy = H * 0.5;
+    }
+    baseR = treeH * 0.295;
+    persp = baseR * 2.5;
+  }
+
+  function buildTree(){
+    pts = [];
+    var n = W < 760 ? 940 : 1420;
+    var turns = Math.PI * 2 * 8;
+    for(var i = 0; i < n; i++){
+      var t = Math.pow(i / n, 0.88);
+      var a = t * turns + (Math.random() - 0.5) * 0.55;
+      var rr = baseR * Math.pow(1 - t, 1.06) * (0.84 + Math.random() * 0.24);
+      var pick = Math.random();
+      var kind = 0;
+      if(pick > 0.962) kind = 3;
+      else if(pick > 0.836) kind = 2;
+      else if(pick > 0.618) kind = 1;
+      pts.push({
+        t: t,
+        a: a,
+        r: rr,
+        sz: 0.95 + Math.random() * 1.55,
+        ph: Math.random() * Math.PI * 2,
+        sp: 0.0009 + Math.random() * 0.0032,
+        kind: kind
+      });
+    }
+
+    sky = [];
+    var sn = Math.round(Math.min(90, W / 8));
+    for(var k = 0; k < sn; k++){
+      sky.push({
+        x: Math.random() * W,
+        y: Math.random() * H * 0.72,
+        a: 0.06 + Math.random() * 0.22,
+        ph: Math.random() * Math.PI * 2
+      });
+    }
+
+    flakes = [];
+    var fn = Math.min(230, Math.round(W * H / 8200));
+    for(var j = 0; j < fn; j++){
+      flakes.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 0.5 + Math.random() * 2.1,
+        vy: 0.22 + Math.random() * 0.95,
+        vx: (Math.random() - 0.5) * 0.4,
+        ph: Math.random() * Math.PI * 2,
+        a: 0.18 + Math.random() * 0.55
+      });
+    }
+  }
+
+  function drawGroundPool(){
+    var gy = cy + treeH * 0.5 + 4;
+    var rad = baseR * 2.0;
+    ctx.save();
+    ctx.translate(cx, gy);
+    ctx.scale(1, 0.34);
+    var grd = ctx.createRadialGradient(0, 0, 0, 0, 0, rad);
+    grd.addColorStop(0, 'rgba(230,192,120,0.13)');
+    grd.addColorStop(0.42, 'rgba(110,170,142,0.055)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(0, 0, rad, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawSky(now){
+    for(var i = 0; i < sky.length; i++){
+      var s = sky[i];
+      var tw = reduce ? 1 : 0.72 + 0.28 * Math.sin(now * 0.0009 + s.ph);
+      ctx.fillStyle = 'rgba(224,238,232,' + (s.a * tw).toFixed(3) + ')';
+      ctx.fillRect(s.x, s.y, 1, 1);
+    }
+  }
+
+  function drawTree(now, rotY){
+    ctx.globalCompositeOperation = 'lighter';
+    var hHalf = treeH * 0.5;
+    for(var i = 0; i < pts.length; i++){
+      var p = pts[i];
+      var ang = p.a + rotY;
+      var z3 = p.r * Math.sin(ang);
+      var x3 = p.r * Math.cos(ang);
+      var pf = persp / (persp + z3);
+      var sx = cx + x3 * pf;
+      var sy = cy + (hHalf - p.t * treeH) * (0.92 + 0.08 * pf);
+      var depth = (z3 / baseR + 1) * 0.5;
+
+      var flick = reduce ? 0.82 : (0.42 + 0.58 * (0.5 + 0.5 * Math.sin(now * p.sp + p.ph)));
+      var alpha = (0.14 + 0.78 * depth) * flick;
+      if(p.kind === 2) alpha = Math.min(1, alpha * 1.28);
+      if(p.kind === 3) alpha = Math.min(1, alpha * 1.15);
+
+      var size = p.sz * (0.5 + 0.5 * pf) * 6.4;
+      var img = sprites[p.kind];
+
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(img, sx - size * 0.5, sy - size * 0.5, size, size);
+    }
+    ctx.globalAlpha = 1;
+
+    /* 心愿灯：每写一条，树上多一颗更亮的灯 */
+    for(var w = 0; w < wishLights.length; w++){
+      var q = wishLights[w];
+      var a2 = q.a + rotY;
+      var z2 = q.r * Math.sin(a2);
+      var x2 = q.r * Math.cos(a2);
+      var pf2 = persp / (persp + z2);
+      var gx = cx + x2 * pf2;
+      var gy2 = cy + (hHalf - q.t * treeH) * (0.92 + 0.08 * pf2);
+      var breathe = reduce ? 1 : (0.72 + 0.28 * Math.sin(now * 0.0022 + q.ph));
+      var gs = 13 * breathe;
+      var glow = sprites[2];
+      ctx.globalAlpha = 0.9;
+      ctx.drawImage(glow, gx - gs, gy2 - gs, gs * 2, gs * 2);
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function drawStar(now){
+    var sy = cy - treeH * 0.5 - Math.max(10, treeH * 0.035);
+    var pulse = reduce ? 1 : 0.68 + 0.32 * Math.sin(now * 0.0019);
+    var s = Math.max(16, treeH * 0.052);
+    var img = sprites[2];
+
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.5 * pulse;
+    ctx.drawImage(img, cx - s * 1.9, sy - s * 1.9, s * 3.8, s * 3.8);
+
+    ctx.globalAlpha = 0.42 * pulse;
+    ctx.drawImage(img, cx - s * 2.6, sy - s * 0.19, s * 5.2, s * 0.38);
+    ctx.drawImage(img, cx - s * 0.19, sy - s * 2.6, s * 0.38, s * 5.2);
+    ctx.drawImage(img, cx - s * 1.8, sy - s * 1.8, s * 3.6, s * 0.26);
+    ctx.drawImage(img, cx - s * 1.8, sy - s * 1.8, s * 0.26, s * 3.6);
+
+    ctx.globalAlpha = 0.95 * pulse;
+    ctx.drawImage(img, cx - s * 0.62, sy - s * 0.62, s * 1.24, s * 1.24);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function drawSnow(dt){
+    for(var i = 0; i < flakes.length; i++){
+      var f = flakes[i];
+      if(dt){
+        f.y += f.vy * dt * 0.055;
+        f.x += (f.vx + Math.sin(f.y * 0.014 + f.ph) * 0.32) * dt * 0.055;
+        if(f.y > H + 8){ f.y = -8; f.x = Math.random() * W; }
+        if(f.x < -10) f.x = W + 10;
+        if(f.x > W + 10) f.x = -10;
+      }
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(235,244,240,' + f.a.toFixed(3) + ')';
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function draw(now){
+    if(!ctx) return;
+    ctx.clearRect(0, 0, W, H);
+    drawSky(now);
+    drawGroundPool();
+    var rotY = rotSmooth + rotAuto;
+    drawTree(now, rotY);
+    drawStar(now);
+    drawSnow(Math.min(now - lastNow, 64));
+    lastNow = now;
+  }
+
+  var lastNow = performance.now();
+
+  function frame(now){
+    rafId = null;
+    if(!running) return;
+    if(!reduce){
+      rotSmooth += (rotTarget - rotSmooth) * 0.045;
+      rotAuto = (now - t0) * 0.000036;
+    }
+    draw(now);
+    if(!reduce) rafId = requestAnimationFrame(frame);
+  }
+
+  function start(){
+    if(rafId !== null || reduce) return;
+    lastNow = performance.now();
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function onResize(){
+    measure();
+    buildTree();
+    syncLights();
+    if(reduce){
+      draw(performance.now());
+    }else{
+      start();
+    }
+  }
+
+  if(ctx){
+    buildSprites();
+    measure();
+    buildTree();
+    t0 = performance.now();
+
+    window.addEventListener('resize', function(){
+      clearTimeout(onResize._t);
+      onResize._t = setTimeout(onResize, 180);
+    });
+
+    window.addEventListener('pointermove', function(e){
+      if(!desk) return;
+      rotTarget = ((e.clientX / Math.max(1, window.innerWidth)) - 0.5) * 1.15;
+    }, {passive:true});
+
+    document.addEventListener('visibilitychange', function(){
+      running = !document.hidden;
+      if(running) start();
+    });
+
+    if(typeof IntersectionObserver !== 'undefined'){
+      new IntersectionObserver(function(es){
+        running = es[0].isIntersecting;
+        if(running) start();
+      }, {threshold: 0.02}).observe(cvs);
+    }
+
+    if(reduce){
+      draw(performance.now());
+    }else{
+      start();
+    }
+
+    if(reduceMQ.addEventListener){
+      reduceMQ.addEventListener('change', function(e){
+        reduce = e.matches;
+        if(reduce){
+          if(rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
+          draw(performance.now());
+        }else{
+          start();
+        }
+      });
+    }
+  }
+
+  /* ================= 倒计时 ================= */
+  var cdD = document.getElementById('cd-d');
+  var cdH = document.getElementById('cd-h');
+  var cdM = document.getElementById('cd-m');
+  var cdS = document.getElementById('cd-s');
+  var cdWrap = document.getElementById('countdown');
+
+  function pad(v){ return (v < 10 ? '0' : '') + v; }
+
+  function tick(){
+    if(!cdWrap || !cdD) return;
+    var now = new Date();
+    var y = now.getFullYear();
+    var thisXmas = new Date(y, 11, 25, 0, 0, 0);
+    var nextXmas = new Date(y + 1, 11, 25, 0, 0, 0);
+    var dayAfter = new Date(y, 11, 26, 0, 0, 0);
+
+    if(now >= thisXmas && now < dayAfter){
+      cdWrap.innerHTML = '<span>今天就是圣诞节</span>';
+      return;
+    }
+    var target = now < thisXmas ? thisXmas : nextXmas;
+    var left = Math.max(0, target - now);
+    var d = Math.floor(left / 86400000);
+    var h = Math.floor(left % 86400000 / 3600000);
+    var m = Math.floor(left % 3600000 / 60000);
+    var s = Math.floor(left % 60000 / 1000);
+    cdD.textContent = String(d);
+    cdH.textContent = pad(h);
+    cdM.textContent = pad(m);
+    cdS.textContent = pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ================= 心愿 ================= */
+  var KEY = 'xmas:wishes:v1';
+  var wishes = [];
+  var form = document.getElementById('wishForm');
+  var input = document.getElementById('wishInput');
+  var list = document.getElementById('wishList');
+  var countEl = document.getElementById('wishCount');
+  var hint = document.getElementById('wishHint');
+  var toast = document.getElementById('toast');
+
+  function loadWishes(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)){
+          wishes = parsed.filter(function(w){ return w && typeof w.text === 'string'; }).slice(0, 60);
+        }
+      }
+    }catch(err){
+      wishes = [];
+    }
+  }
+
+  function saveWishes(){
+    try{
+      localStorage.setItem(KEY, JSON.stringify(wishes));
+    }catch(err){ /* 存不下就算了，页面还能用 */ }
+  }
+
+  function makeLight(i){
+    var t = 0.1 + ((i * 0.417) % 0.78);
+    var a = (i * 2.3999) % (Math.PI * 2 * 8);
+    var rr = baseR * Math.pow(1 - t, 1.06) * 0.95;
+    return { t: t, a: a, r: rr, ph: (i * 1.7) % (Math.PI * 2) };
+  }
+
+  function syncLights(){
+    wishLights = wishes.map(function(_, i){ return makeLight(i); });
+  }
+
+  function fmtTime(ts){
+    var d = new Date(ts);
+    if(isNaN(d.getTime())) return '';
+    return pad(d.getMonth() + 1) + '/' + pad(d.getDate());
+  }
+
+  function render(){
+    if(!list) return;
+    if(wishes.length === 0){
+      list.innerHTML = '<p class="wish-empty">还没有灯。第一盏，留给你。</p>';
+      if(countEl) countEl.textContent = '';
+      return;
+    }
+    var html = '';
+    var show = Math.min(wishes.length, 8);
+    for(var i = 0; i < show; i++){
+      var w = wishes[wishes.length - 1 - i];
+      var text = String(w.text).replace(/[&<>"]/g, function(c){
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+      html += '<div class="wish-item">'
+           +   '<span class="bulb" aria-hidden="true"></span>'
+           +   '<span class="txt">' + text + '</span>'
+           +   '<span class="when">' + fmtTime(w.ts) + '</span>'
+           + '</div>';
+    }
+    if(wishes.length > show){
+      html += '<p class="wish-empty">还有 ' + (wishes.length - show) + ' 盏，就留给树自己记着。</p>';
+    }
+    list.innerHTML = html;
+    if(countEl) countEl.textContent = '树上有 ' + wishes.length + ' 盏灯';
+  }
+
+  var toastTimer = null;
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 2200);
+  }
+
+  function showHint(){
+    if(!hint) return;
+    hint.classList.add('on');
+    clearTimeout(showHint._t);
+    showHint._t = setTimeout(function(){ hint.classList.remove('on'); }, 2600);
+  }
+
+  if(form){
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var v = (input && input.value || '').trim();
+      if(!v){
+        showHint();
+        if(input) input.focus();
+        return;
+      }
+      wishes.push({ text: v.slice(0, 40), ts: Date.now() });
+      saveWishes();
+      syncLights();
+      render();
+      if(input){ input.value = ''; input.blur(); }
+      showToast('已经挂上了');
+    });
+  }
+
+  var toTop = document.getElementById('toTop');
+  if(toTop){
+    toTop.addEventListener('click', function(e){
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+  }
+
+  loadWishes();
+  syncLights();
+  render();
+})();
+</script>
+</body>
+</html>
