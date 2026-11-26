@@ -97,14 +97,14 @@
   var qm = (location.search || '').match(/[?&]at=([0-9.]+)/);
   if(qm) FREEZE = parseFloat(qm[1]);
 
-  /* 时间轴（秒） */
+  /* 时间轴（秒）—— 不做跳转，这场动画就是全部内容 */
   var T_STAR  = 0.00;   /* 第一颗星升起 */
   var T_BURST = 0.72;   /* 爆炸起点 */
-  var T_GATHER= 1.48;   /* 开始聚拢 */
-  var T_GROW  = 3.42;   /* 由下往上铺满粒子 */
-  var T_GROWD = 2.05;   /* 铺满用时 */
-  var T_TEXT  = 5.62;   /* 文字浮现 */
-  var T_OUT   = 7.02;   /* 淡出 */
+  var T_GATHER= 1.50;   /* 开始聚拢 */
+  var T_GDUR  = 2.55;   /* 聚拢用时 */
+  var T_GROW  = 3.82;   /* 由下往上铺满粒子 */
+  var T_GROWD = 3.55;   /* 铺满用时 */
+  var T_TEXT  = 7.72;   /* 文字浮现 */
 
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
@@ -123,30 +123,43 @@
     Rmax = Math.max(W,H)*0.40;
     starR = Math.min(W,H)*0.085;
 
-    var N = clamp(Math.round(W*H/430), 1500, 3000);
+    var N = clamp(Math.round(W*H/235), 2400, 4400);
     var turns = 11.5;
     P.length = 0;
 
     for(var i=0;i<N;i++){
       var u = i/(N-1);                       /* 0 = 树顶, 1 = 树脚 */
-      var y = topY + treeH*u;
-      var ang = u*turns*TAU + rnd(-0.30,0.30);
-      var radial = baseR*Math.pow(u, 1.06);
-      var depth = (i%6===0) ? rnd(0.34,0.94) : 1;   /* 一部分点落进锥体内部，做出体积 */
-      var rr = radial*depth*(0.94 + rnd(-0.06,0.06));
+      var yBase = topY + treeH*u;
+      var coneR = baseR*Math.pow(u, 1.06);
+      var inner = (i % 5) >= 3;              /* 40% 落在锥体内部，把圈与圈之间的空隙填满 */
+      var tx, ty;
+
+      if(inner){
+        var vv = 1 - Math.pow(Math.random(), 0.42);   /* 靠外圈更密一些 */
+        var a2 = rnd(0, TAU);
+        var r2 = coneR*vv;
+        tx = cx + Math.cos(a2)*r2;
+        ty = yBase + Math.sin(a2)*r2*0.055 + rnd(-7,7);
+      } else {
+        var a1 = u*turns*TAU + rnd(-0.26,0.26);
+        var r1 = coneR*(0.96 + rnd(-0.05,0.05));
+        tx = cx + Math.cos(a1)*r1;
+        ty = yBase + Math.sin(a1)*r1*0.075 + rnd(-5,5);
+      }
 
       P.push({
-        tx: cx + Math.cos(ang)*rr,
-        ty: y + Math.sin(ang)*rr*0.075,
+        tx: tx,
+        ty: ty,
         u: u,                                /* 在树上的高度位置，0顶1脚 */
-        frame: (i%4===0) ? 1 : 0,            /* 1 = 先落位的骨架，其余等生长阶段点亮 */
+        inner: inner ? 1 : 0,
+        frame: (i%8===0) ? 1 : 0,            /* 1 = 先落位的骨架，其余等生长阶段点亮 */
         ang: rnd(0,TAU),                     /* 炸开方向 */
         br: Math.pow(Math.random(), 1.45),   /* 炸开距离系数：中心更密 */
         dly: rnd(0,0.30),                    /* 起爆延迟 */
-        sz: rnd(0.45,1.6),
+        sz: rnd(0.40,1.45)*(inner?0.9:1),
         c: COLORS[(Math.random()*COLORS.length)|0],
-        big: Math.random()<0.18,
-        trail: Math.random()<0.62,
+        big: Math.random()<0.16,
+        trail: Math.random()<0.34,
         ph: rnd(0,TAU),
         lx: null, ly: null
       });
@@ -263,7 +276,7 @@
       var bt = clamp((t - T_BURST - p.dly)/1.02, 0, 1);
       if(bt <= 0) continue;
       var be = easeOutCubic(bt);
-      var mt = clamp((t - T_GATHER - p.dly*0.62)/2.10, 0, 1);
+      var mt = clamp((t - T_GATHER - p.dly*0.62)/T_GDUR, 0, 1);
       var me = easeInOutCubic(mt);
 
       var reach = (0.10 + p.br*0.86) * Rmax * be;
@@ -278,9 +291,9 @@
 
       var a = clamp(bt*3.2, 0, 1);
       a *= 0.55 + 0.45*me;                        /* 落位时更实 */
-      a *= p.frame ? 0.60 : (0.13 + 0.87*easeOutCubic(act));
+      a *= p.frame ? 0.42 : (0.11 + 0.89*easeOutCubic(act));
+      a *= p.inner ? 0.52 : 1;                    /* 内部填充点暗一点，保住螺旋的主线 */
       a *= 0.86 + 0.14*Math.sin(t*2.6 + p.ph);    /* 轻轻呼吸闪烁 */
-      a *= 1 - clamp((t - T_OUT - 0.55)/0.9, 0, 1);
 
       var s = p.sz*(0.82 + 0.30*me);
 
@@ -299,7 +312,7 @@
         p.lx = x; p.ly = y;
       }
 
-      ctx.fillStyle = 'rgba('+p.c+','+ (a*0.94) +')';
+      ctx.fillStyle = 'rgba('+p.c+','+ (a*0.86) +')';
       ctx.beginPath(); ctx.arc(x, y, s, 0, TAU); ctx.fill();
 
       if(p.big){
@@ -358,14 +371,6 @@
     if(t >= T_TEXT && words && !words.classList.contains('show')){
       words.classList.add('show');
     }
-
-    if(!FREEZE && !outStarted && started && t >= T_OUT){
-      outStarted = true;
-      setTimeout(function(){
-        document.body.classList.add('out');
-        setTimeout(goTree, 460);
-      }, 30);
-    }
   }
 
   function loop(ts){
@@ -381,24 +386,14 @@
     started = true;
     go.classList.add('off');
     /* 就算系统开了"减少动态"，也照常把这场动画放完，只是节奏放快一点 */
+    /* 就算系统开了"减少动态"，也照常把这场动画放完，只是节奏放快一点 */
     if(reduced){
-      T_BURST = 0.55; T_GATHER = 1.10; T_GROW = 2.25; T_GROWD = 1.35;
-      T_TEXT = 3.70; T_OUT = 4.90;
+      T_BURST = 0.55; T_GATHER = 1.05; T_GDUR = 1.5; T_GROW = 2.45; T_GROWD = 1.9;
+      T_TEXT = 4.45;
     }
     t0 = performance.now();
     running = true;
     if(!rafId) rafId = requestAnimationFrame(loop);
-  }
-
-  /* 跳到圣诞树页：本站内用相对路径；放在别处（比如 CDN 上的单文件）时回落到线上主站 */
-  function goTree(){
-    var url;
-    if(location.protocol === 'file:' || /github\.io$/.test(location.hostname)){
-      url = 'tree.html?grown=1';
-    } else {
-      url = 'https://sakura-jj-zz.github.io/christmas-tree/tree.html?grown=1';
-    }
-    location.href = url;
   }
 
   go.addEventListener('click', begin);
