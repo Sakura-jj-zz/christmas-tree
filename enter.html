@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Merry Christmas · 2026</title>
+<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Great+Vibes&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#000;overflow:hidden}
   body{-webkit-tap-highlight-color:transparent;transition:opacity .42s ease}
@@ -48,16 +50,39 @@
     50%{box-shadow:0 0 0 1px rgba(255,236,200,.10) inset, 0 0 34px rgba(255,214,166,.22), 0 0 84px rgba(255,186,146,.09)}
   }
   @media (prefers-reduced-motion: reduce){ #go{animation:none} }
+
+  /* 树全部亮起来之后浮现的文字 */
+  #words{
+    position:fixed;left:0;right:0;top:0;
+    pointer-events:none;text-align:center;
+    opacity:0;transform:translateY(18px);
+    transition:opacity 1.2s ease, transform 1.5s cubic-bezier(.18,.72,.18,1);
+    will-change:opacity,transform;
+  }
+  #words.show{opacity:1;transform:translateY(0)}
+  #words .w1{
+    font-family:"Great Vibes","Segoe Script",cursive;
+    color:#fff0f7;line-height:1;white-space:nowrap;
+    text-shadow:0 0 16px rgba(255,64,150,.9), 0 0 42px rgba(255,38,126,.6), 0 0 92px rgba(255,16,104,.36);
+  }
+  #words .w2{
+    margin-top:.62em;
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    font-weight:300;color:#ffd9ea;letter-spacing:.28em;
+    text-shadow:0 0 12px rgba(255,96,172,.5), 0 0 30px rgba(255,60,150,.3);
+  }
 </style>
 </head>
 <body>
 <canvas id="cv" aria-hidden="true"></canvas>
+<div id="words"><div class="w1">Merry Christmas</div><div class="w2">愿所有的美好都如约而至 · 2026</div></div>
 <div id="veil"><button id="go" type="button" aria-label="进入">进入</button></div>
 <script>
 (function(){
   var cv = document.getElementById('cv');
   var ctx = cv.getContext('2d');
   var go = document.getElementById('go');
+  var words = document.getElementById('words');
 
   var TAU = Math.PI*2;
   var W = 0, H = 0, DPR = 1;
@@ -75,9 +100,11 @@
   /* 时间轴（秒） */
   var T_STAR  = 0.00;   /* 第一颗星升起 */
   var T_BURST = 0.72;   /* 爆炸起点 */
-  var T_GATHER= 1.50;   /* 开始聚拢 */
-  var T_TREE  = 3.62;   /* 树成形 */
-  var T_OUT   = 4.30;   /* 淡出 */
+  var T_GATHER= 1.48;   /* 开始聚拢 */
+  var T_GROW  = 3.42;   /* 由下往上铺满粒子 */
+  var T_GROWD = 2.05;   /* 铺满用时 */
+  var T_TEXT  = 5.62;   /* 文字浮现 */
+  var T_OUT   = 7.02;   /* 淡出 */
 
   function rnd(a,b){ return a + Math.random()*(b-a); }
   function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
@@ -88,15 +115,15 @@
 
   function build(){
     cx = W*0.5;
-    topY = H*0.170;
-    groundY = H*0.885;
+    topY = H*0.268;
+    groundY = H*0.866;
     treeH = groundY - topY;
-    baseR = treeH*0.215;
+    baseR = treeH*0.225;
     cy0 = H*0.395;              /* 星星 / 爆炸中心 */
     Rmax = Math.max(W,H)*0.40;
     starR = Math.min(W,H)*0.085;
 
-    var N = clamp(Math.round(W*H/460), 1400, 2600);
+    var N = clamp(Math.round(W*H/430), 1500, 3000);
     var turns = 11.5;
     P.length = 0;
 
@@ -105,12 +132,14 @@
       var y = topY + treeH*u;
       var ang = u*turns*TAU + rnd(-0.30,0.30);
       var radial = baseR*Math.pow(u, 1.06);
-      var depth = (i%5===0) ? rnd(0.34,0.94) : 1;   /* 一部分点落进锥体内部，做出体积 */
+      var depth = (i%6===0) ? rnd(0.34,0.94) : 1;   /* 一部分点落进锥体内部，做出体积 */
       var rr = radial*depth*(0.94 + rnd(-0.06,0.06));
 
       P.push({
         tx: cx + Math.cos(ang)*rr,
         ty: y + Math.sin(ang)*rr*0.075,
+        u: u,                                /* 在树上的高度位置，0顶1脚 */
+        frame: (i%4===0) ? 1 : 0,            /* 1 = 先落位的骨架，其余等生长阶段点亮 */
         ang: rnd(0,TAU),                     /* 炸开方向 */
         br: Math.pow(Math.random(), 1.45),   /* 炸开距离系数：中心更密 */
         dly: rnd(0,0.30),                    /* 起爆延迟 */
@@ -131,6 +160,15 @@
     cv.style.width = W+'px'; cv.style.height = H+'px';
     ctx.setTransform(DPR,0,0,DPR,0,0);
     build();
+
+    /* 文字排版：居中在树的正上方 */
+    if(words){
+      words.style.top = (H*0.052).toFixed(1) + 'px';
+      var w1 = words.querySelector('.w1');
+      var w2 = words.querySelector('.w2');
+      if(w1) w1.style.fontSize = Math.min(W*0.108, H*0.084).toFixed(1) + 'px';
+      if(w2) w2.style.fontSize = Math.min(W*0.030, H*0.023).toFixed(1) + 'px';
+    }
   }
 
   /* 星芒：核心光斑 + 主光束 + 斜向短芒 */
@@ -214,14 +252,18 @@
       ctx.globalCompositeOperation = 'source-over';
     }
 
-    /* 粒子：从星点爆开，再回吸成树 */
+    /* 生长水位：由下往上扫，扫过的粒子才亮起来 */
+    var gp = clamp((t - T_GROW)/T_GROWD, 0, 1);
+    var gy = groundY - treeH*gp;
+
+    /* 粒子：从星点爆开 → 回吸成暗轮廓 → 由下往上亮成满树 */
     ctx.globalCompositeOperation = 'lighter';
     for(var i=0;i<P.length;i++){
       var p = P[i];
       var bt = clamp((t - T_BURST - p.dly)/1.02, 0, 1);
       if(bt <= 0) continue;
       var be = easeOutCubic(bt);
-      var mt = clamp((t - T_GATHER - p.dly*0.62)/2.16, 0, 1);
+      var mt = clamp((t - T_GATHER - p.dly*0.62)/2.10, 0, 1);
       var me = easeInOutCubic(mt);
 
       var reach = (0.10 + p.br*0.86) * Rmax * be;
@@ -229,11 +271,15 @@
       var ey = cy0 + Math.sin(p.ang)*reach*0.82;
 
       var x = ex + (p.tx-ex)*me;
-      var y = ey + (p.ty-ey)*me;
+      var yb = ey + (p.ty-ey)*me;
+
+      var act = p.frame ? 1 : clamp((p.ty - gy)/42, 0, 1);
+      var y = yb + (1-easeOutCubic(act))*22*me;   /* 还没亮起的粒子在目标点下方一点点，随点亮升起 */
 
       var a = clamp(bt*3.2, 0, 1);
-      a *= 0.55 + 0.45*me;                    /* 落位时更实 */
-      a *= 0.86 + 0.14*Math.sin(t*2.6 + p.ph);/* 轻轻呼吸闪烁 */
+      a *= 0.55 + 0.45*me;                        /* 落位时更实 */
+      a *= p.frame ? 0.60 : (0.13 + 0.87*easeOutCubic(act));
+      a *= 0.86 + 0.14*Math.sin(t*2.6 + p.ph);    /* 轻轻呼吸闪烁 */
       a *= 1 - clamp((t - T_OUT - 0.55)/0.9, 0, 1);
 
       var s = p.sz*(0.82 + 0.30*me);
@@ -263,8 +309,28 @@
     }
     ctx.globalCompositeOperation = 'source-over';
 
-    /* 树成形后：地面光池 + 树顶第二颗星 */
-    var ground = clamp((t - T_TREE + 0.35)/1.2, 0, 1);
+    /* 生长水位处的一道柔光，跟着水位往上走 */
+    if(gp > 0.01 && gp < 0.97){
+      var wR = baseR*Math.pow(gp, 1.06)*1.9 + 8;
+      var wA = (1 - Math.abs(gp-0.55)*1.15) * 0.52;
+      if(wA > 0.01){
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.save();
+        ctx.translate(cx, gy);
+        ctx.scale(1, 0.19);
+        var wg = ctx.createRadialGradient(0,0,0,0,0,wR);
+        wg.addColorStop(0,   'rgba(255,246,228,'+ (wA*0.62) +')');
+        wg.addColorStop(0.40,'rgba(255,222,182,'+ (wA*0.26) +')');
+        wg.addColorStop(1,   'rgba(255,206,168,0)');
+        ctx.fillStyle = wg;
+        ctx.beginPath(); ctx.arc(0,0,wR,0,TAU); ctx.fill();
+        ctx.restore();
+        ctx.globalCompositeOperation = 'source-over';
+      }
+    }
+
+    /* 地面光池：随树往上长，一点点亮起来 */
+    var ground = clamp((t - T_GROW - 0.10)/1.30, 0, 1);
     if(ground > 0.01){
       ctx.globalCompositeOperation = 'lighter';
       ctx.save();
@@ -281,17 +347,23 @@
       ctx.globalCompositeOperation = 'source-over';
     }
 
-    var crown = clamp((t - T_TREE)/0.55, 0, 1);
+    /* 树顶星：整棵树亮满时才点起来 */
+    var crown = clamp((t - (T_GROW + T_GROWD - 0.22))/0.55, 0, 1);
     if(crown > 0.01){
       var cc = Math.pow(crown, 1.4);
-      flare(cx, topY + treeH*0.012, starR*0.86*(0.6+0.4*cc), cc*0.92, -t*0.26);
+      flare(cx, topY + treeH*0.012, starR*0.80*(0.6+0.4*cc), cc*0.92, -t*0.26);
+    }
+
+    /* 文字浮现 */
+    if(t >= T_TEXT && words && !words.classList.contains('show')){
+      words.classList.add('show');
     }
 
     if(!FREEZE && !outStarted && started && t >= T_OUT){
       outStarted = true;
       setTimeout(function(){
         document.body.classList.add('out');
-        setTimeout(goTree, 420);
+        setTimeout(goTree, 460);
       }, 30);
     }
   }
@@ -310,7 +382,8 @@
     go.classList.add('off');
     /* 就算系统开了"减少动态"，也照常把这场动画放完，只是节奏放快一点 */
     if(reduced){
-      T_BURST = 0.55; T_GATHER = 1.15; T_TREE = 2.75; T_OUT = 3.05;
+      T_BURST = 0.55; T_GATHER = 1.10; T_GROW = 2.25; T_GROWD = 1.35;
+      T_TEXT = 3.70; T_OUT = 4.90;
     }
     t0 = performance.now();
     running = true;
@@ -348,6 +421,7 @@
     go.classList.add('off');
     started = true; running = true;
     t0 = performance.now();
+    if(FREEZE >= T_TEXT && words) words.classList.add('show');
     if(!rafId) rafId = requestAnimationFrame(loop);
   }
 
