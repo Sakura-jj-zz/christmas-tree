@@ -240,12 +240,15 @@
 
       if(p.trail && p.lx !== null){
         var dx = x - p.lx, dy = y - p.ly;
-        if(dx*dx + dy*dy > 6){
-          ctx.strokeStyle = 'rgba('+p.c+','+ (a*0.44) +')';
-          ctx.lineWidth = Math.max(1, s*0.85);
+        var d2 = dx*dx + dy*dy;
+        if(d2 > 676){                          /* 掉帧导致跨度过大，就不拉长线，直接归位 */
+          p.lx = x; p.ly = y;
+        } else if(d2 > 6){
+          ctx.strokeStyle = 'rgba('+p.c+','+ (a*0.42) +')';
+          ctx.lineWidth = Math.max(1, s*0.8);
           ctx.beginPath(); ctx.moveTo(p.lx, p.ly); ctx.lineTo(x, y); ctx.stroke();
+          p.lx = x; p.ly = y;
         }
-        p.lx = x; p.ly = y;
       } else if(p.lx === null){
         p.lx = x; p.ly = y;
       }
