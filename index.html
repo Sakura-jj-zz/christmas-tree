@@ -170,108 +170,169 @@
 
   @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-  /* 相册：一张图配一段字，左右滑着换 */
-  #gallery{
-    position:absolute;left:50%;bottom:9.5vh;
-    width:min(80vw,46vh);aspect-ratio:3/4;
-    transform:translateX(-50%);
-    border-radius:16px;overflow:hidden;
-    background:#08050a;
-    box-shadow:
-      0 26px 70px rgba(0,0,0,.72),
-      0 0 0 1px rgba(255,214,232,.16),
-      0 0 62px rgba(255,60,140,.14);
-    opacity:0;transition:opacity 2.2s ease .55s;
-    touch-action:pan-y;
-    cursor:grab;
+  /* 地面上的礼物盒：点哪一个，就打开属于它的那张图和那段字 */
+  #giftRow{
+    position:absolute;left:0;right:0;bottom:5.4vh;z-index:4;
+    display:flex;align-items:flex-end;justify-content:center;
+    gap:min(2.6vw,26px);padding:0 4vw;
+    opacity:0;transform:translateY(16px);
+    transition:opacity 2s ease .5s, transform 2.4s cubic-bezier(.18,.72,.18,1) .5s;
   }
-  #gallery:active{cursor:grabbing}
-  #discStage.on #gallery{opacity:1}
+  #discStage.on #giftRow{opacity:1;transform:translateY(0)}
 
-  #slides{
-    display:flex;width:100%;height:100%;
-    transition:transform .86s cubic-bezier(.20,.72,.14,1);
-    will-change:transform;
+  .gbox{
+    position:relative;flex:0 0 auto;
+    width:clamp(42px, var(--w), 132px);
+    aspect-ratio:1/0.88;
+    border:0;background:none;padding:0;cursor:pointer;
+    -webkit-appearance:none;appearance:none;
+    transform:translateY(calc(var(--dy) * -1));
+    transition:transform .45s cubic-bezier(.2,.7,.2,1), filter .45s ease;
+    filter:drop-shadow(0 12px 26px rgba(0,0,0,.62));
+    animation:giftFloat 5.6s ease-in-out infinite;
+    animation-delay:var(--dly);
   }
-  .slide{
-    position:relative;flex:0 0 100%;width:100%;height:100%;
-    margin:0;overflow:hidden;
+  @keyframes giftFloat{
+    0%,100%{translate:0 0}
+    50%{translate:0 -5px}
   }
-  .slide img{
-    width:100%;height:100%;object-fit:cover;display:block;
-    -webkit-user-drag:none;user-select:none;
-    transform:scale(1.03);transition:transform 1.2s ease;
+  .gbox:hover{transform:translateY(calc(var(--dy) * -1 - 8px)) scale(1.05);filter:drop-shadow(0 16px 30px rgba(0,0,0,.7))}
+  .gbox:active{transform:translateY(calc(var(--dy) * -1)) scale(.97)}
+
+  .gbox .glow{
+    position:absolute;inset:-46%;border-radius:50%;pointer-events:none;z-index:-1;
+    background:radial-gradient(circle, rgba(255,120,170,.30), rgba(255,80,150,0) 68%);
+    opacity:.55;
   }
-  .slide.active img{transform:scale(1)}
-  .slide::after{
+  .gbox .body{
+    position:absolute;inset:0;border-radius:3px 3px 5px 5px;
+    background:
+      linear-gradient(104deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,0) 26%),
+      linear-gradient(180deg, var(--c1) 0%, var(--c2) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.16),
+      inset 0 -12px 24px rgba(0,0,0,.44),
+      inset 0 8px 16px rgba(255,255,255,.10);
+  }
+  .gbox .body::after{
+    content:"";position:absolute;left:0;right:0;top:34%;height:17%;z-index:2;
+    background:linear-gradient(180deg, #a87c3c 0%, #ffe2a6 22%, #fff8e2 48%, #ffdda0 74%, #a87c3c 100%);
+    box-shadow:0 0 10px rgba(255,214,150,.30);
+  }
+  .gbox .lid{
+    position:absolute;left:-8%;right:-8%;top:0;height:26%;
+    border-radius:4px;
+    background:
+      linear-gradient(104deg, rgba(255,255,255,.40) 0%, rgba(255,255,255,0) 32%),
+      linear-gradient(180deg, var(--c1) 0%, var(--c2) 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.22),
+      inset 0 -8px 16px rgba(0,0,0,.38),
+      0 7px 18px rgba(0,0,0,.4);
+  }
+  .gbox .rib{
+    position:absolute;left:50%;top:0;bottom:0;width:16%;
+    transform:translateX(-50%);z-index:2;
+    background:linear-gradient(90deg, #a87c3c, #ffe2a6 30%, #fff8e2 50%, #ffdda0 70%, #a87c3c);
+    box-shadow:0 0 12px rgba(255,214,150,.32);
+  }
+  .gbox .bow{
+    position:absolute;left:50%;top:-15%;width:80%;height:34%;
+    transform:translateX(-50%);z-index:3;
+    filter:drop-shadow(0 3px 9px rgba(0,0,0,.42));
+  }
+  .gbox .bow::before, .gbox .bow::after{
+    content:"";position:absolute;top:16%;width:52%;height:62%;
+    border-radius:50% 50% 38% 38% / 62% 62% 32% 32%;
+    background:linear-gradient(158deg, #fffbe6 0%, #ffe1a4 32%, #f0bd72 62%, #b8843a 100%);
+    box-shadow:inset 0 -3px 8px rgba(140,95,30,.42), inset 0 3px 6px rgba(255,248,220,.5);
+  }
+  .gbox .bow::before{left:0;transform:rotate(-24deg);transform-origin:right center}
+  .gbox .bow::after{right:0;transform:rotate(24deg);transform-origin:left center}
+  .gbox .bow .knot{
+    position:absolute;left:50%;top:34%;width:22%;height:44%;
+    transform:translateX(-50%);border-radius:50%;
+    background:linear-gradient(160deg,#fff8e0,#f5c67c 50%,#bd8a3f);
+    box-shadow:inset 0 -2px 6px rgba(130,90,30,.45);
+  }
+  .gbox:hover .bow{filter:drop-shadow(0 0 16px rgba(255,214,158,.8))}
+
+  /* 点开后的那一页：图 + 可改的字 */
+  #card{
+    position:absolute;left:50%;top:45%;
+    transform:translate(-50%,-50%) scale(.86);
+    width:min(74vw,42vh);aspect-ratio:3/4;
+    border-radius:16px;overflow:hidden;background:#08050a;
+    box-shadow:
+      0 30px 84px rgba(0,0,0,.82),
+      0 0 0 1px rgba(255,214,232,.20),
+      0 0 70px rgba(255,60,140,.20);
+    opacity:0;pointer-events:none;z-index:5;
+    transition:opacity .5s ease, transform .72s cubic-bezier(.16,.74,.16,1);
+  }
+  #card.on{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+
+  #card .pic{position:absolute;inset:0}
+  #card .pic img{width:100%;height:100%;object-fit:cover;display:block}
+  #card .pic::after{
     content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(to top, rgba(3,1,6,.94) 0%, rgba(3,1,6,.74) 26%, rgba(3,1,6,.10) 56%, rgba(3,1,6,0) 78%);
+    background:linear-gradient(to top, rgba(3,1,6,.95) 0%, rgba(3,1,6,.70) 30%, rgba(3,1,6,.05) 62%, rgba(3,1,6,0) 84%);
   }
-  .cap{
+  #card .cap{
     position:absolute;left:0;right:0;bottom:0;z-index:2;
-    padding:6% 7% 6.5%;
+    padding:7% 7% 8.5%;
     font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
     color:#ffdcea;
   }
-  .cap .h{
-    font-size:min(4.4vmin,22px);font-weight:600;letter-spacing:.06em;
+  #card .cap .h{
+    font-size:min(4.4vmin,22px);font-weight:600;letter-spacing:.05em;
     margin:0 0 .34em;white-space:pre-wrap;
     color:#fff2f8;outline:none;
     text-shadow:0 0 18px rgba(255,86,164,.55), 0 2px 10px rgba(0,0,0,.6);
   }
-  .cap .d{
+  #card .cap .d{
     font-size:min(2.7vmin,14.5px);font-weight:300;line-height:1.75;letter-spacing:.02em;
     color:rgba(255,222,236,.86);outline:none;margin:0;white-space:pre-wrap;
   }
-  .cap [contenteditable]:focus{
+  #card .cap [contenteditable]:focus{
     background:rgba(255,120,180,.13);
     box-shadow:0 0 0 1px rgba(255,150,200,.42), 0 0 22px rgba(255,80,150,.22);
     border-radius:6px;padding:0 .22em;margin:0 -.22em;
   }
 
-  #dots{
-    position:absolute;left:0;right:0;bottom:6.2vh;
-    display:flex;justify-content:center;gap:9px;
-    opacity:0;transition:opacity 2s ease 1.5s;
-    pointer-events:auto;
+  #cardTip{
+    position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:3;
+    padding:.34em .86em;border-radius:999px;white-space:nowrap;
+    background:rgba(6,2,10,.58);border:1px solid rgba(255,204,228,.26);
+    -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:min(2vmin,11px);letter-spacing:.12em;color:rgba(255,214,234,.72);
+    pointer-events:none;
+    opacity:0;transition:opacity .9s ease .4s;
   }
-  #discStage.on #dots{opacity:1}
-  #dots i{
-    width:6px;height:6px;border-radius:50%;
-    background:rgba(255,196,222,.28);
-    transition:background .4s ease, box-shadow .4s ease, transform .4s ease;
-    cursor:pointer;display:block;
-  }
-  #dots i.on{
-    background:#ff8ec2;transform:scale(1.28);
-    box-shadow:0 0 12px rgba(255,110,180,.9);
-  }
+  #card.on #cardTip{opacity:1}
 
-  #galleryHint{
-    position:absolute;left:0;right:0;bottom:2.4vh;text-align:center;
+  #cardClose{
+    position:absolute;right:9px;top:9px;z-index:4;
+    width:30px;height:30px;border-radius:50%;cursor:pointer;
+    background:rgba(8,3,10,.6);color:#ffd9ea;
+    border:1px solid rgba(255,200,226,.32);
+    -webkit-appearance:none;appearance:none;
+    font-size:15px;line-height:1;padding:0;
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+    transition:background .3s ease, transform .3s ease;
+  }
+  #cardClose:hover{background:rgba(255,80,150,.34);transform:scale(1.06)}
+
+  /* 整页飘雪 */
+  #snow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+
+  #giftHint{
+    position:absolute;left:0;right:0;bottom:1.7vh;text-align:center;
     font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
     font-weight:300;font-size:min(2.2vmin,12px);letter-spacing:.16em;
-    color:rgba(255,206,228,.52);pointer-events:none;
+    color:rgba(255,206,228,.50);pointer-events:none;
   }
-
-  /* 左右切换箭头 */
-  #navs{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:min(90vw,58vh);display:flex;justify-content:space-between;
-    pointer-events:none;opacity:0;transition:opacity 1.8s ease 1.1s;
-  }
-  #discStage.on #navs{opacity:1}
-  #navs button{
-    pointer-events:auto;cursor:pointer;
-    width:clamp(30px,4.4vmin,40px);aspect-ratio:1;border-radius:50%;
-    background:rgba(10,4,10,.5);color:#ffd9ea;
-    border:1px solid rgba(255,200,226,.30);
-    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
-    font-size:14px;line-height:1;
-    transition:background .3s ease, border-color .3s ease, transform .3s ease;
-  }
-  #navs button:hover{background:rgba(255,80,150,.26);border-color:rgba(255,210,232,.7);transform:scale(1.06)}
-  #navs button:active{transform:scale(.94)}
 
   #filePick{display:none}
 
@@ -350,38 +411,37 @@
   </div>
   <div id="discMeta">正在播放 · 喜欢你（现场版）</div>
 
-  <div id="gallery">
-    <div id="slides">
-      <figure class="slide active">
-        <img src="https://aka.doubaocdn.com/s/6IRShLxcXx" alt="" draggable="false">
-        <div class="cap">
-          <div class="h" contenteditable="plaintext-only" spellcheck="false">灯亮起来的那一刻</div>
-          <div class="d" contenteditable="plaintext-only" spellcheck="false">你说想看一棵真的树，于是我把整片夜都点亮了。</div>
-        </div>
-      </figure>
-      <figure class="slide">
-        <img src="https://aka.doubaocdn.com/s/PbzSUIblrM" alt="" draggable="false">
-        <div class="cap">
-          <div class="h" contenteditable="plaintext-only" spellcheck="false">窗外的雪很轻</div>
-          <div class="d" contenteditable="plaintext-only" spellcheck="false">隔着一层玻璃，世界安静下来，只剩杯子里那点热气。</div>
-        </div>
-      </figure>
-      <figure class="slide">
-        <img src="https://aka.doubaocdn.com/s/9VrhIXH7Ja" alt="" draggable="false">
-        <div class="cap">
-          <div class="h" contenteditable="plaintext-only" spellcheck="false">写给你的一张纸</div>
-          <div class="d" contenteditable="plaintext-only" spellcheck="false">今年这一页很短，但每一个字都留给你。</div>
-        </div>
-      </figure>
+  <canvas id="snow" aria-hidden="true"></canvas>
+
+  <div id="giftRow">
+    <button class="gbox" type="button" data-i="0" aria-label="打开第一份礼物" style="--w:10.6vmin;--dy:0px;--c1:#f0566a;--c2:#a41c33;--dly:0s">
+      <span class="glow"></span><span class="body"></span><span class="lid"></span><span class="rib"></span><span class="bow"><span class="knot"></span></span>
+    </button>
+    <button class="gbox" type="button" data-i="1" aria-label="打开第二份礼物" style="--w:7.4vmin;--dy:11px;--c1:#6ebcff;--c2:#21589e;--dly:.9s">
+      <span class="glow"></span><span class="body"></span><span class="lid"></span><span class="rib"></span><span class="bow"><span class="knot"></span></span>
+    </button>
+    <button class="gbox" type="button" data-i="2" aria-label="打开第三份礼物" style="--w:13vmin;--dy:3px;--c1:#ff7ec0;--c2:#a52a6c;--dly:.45s">
+      <span class="glow"></span><span class="body"></span><span class="lid"></span><span class="rib"></span><span class="bow"><span class="knot"></span></span>
+    </button>
+    <button class="gbox" type="button" data-i="3" aria-label="打开第四份礼物" style="--w:8.4vmin;--dy:15px;--c1:#f8cf72;--c2:#a3772a;--dly:1.35s">
+      <span class="glow"></span><span class="body"></span><span class="lid"></span><span class="rib"></span><span class="bow"><span class="knot"></span></span>
+    </button>
+    <button class="gbox" type="button" data-i="4" aria-label="打开第五份礼物" style="--w:9.8vmin;--dy:6px;--c1:#b083f6;--c2:#552b9d;--dly:1.8s">
+      <span class="glow"></span><span class="body"></span><span class="lid"></span><span class="rib"></span><span class="bow"><span class="knot"></span></span>
+    </button>
+  </div>
+  <div id="giftHint">轻点一个礼物盒 · 里面有一张图和一段话</div>
+
+  <div id="card">
+    <div class="pic"><img src="https://aka.doubaocdn.com/s/6IRShLxcXx" alt="" draggable="false"></div>
+    <div class="cap">
+      <div class="h" contenteditable="plaintext-only" spellcheck="false">灯亮起来的那一刻</div>
+      <div class="d" contenteditable="plaintext-only" spellcheck="false">你说想看一棵真的树，于是我把整片夜都点亮了。</div>
     </div>
+    <div id="cardTip">点图片换图 · 点文字改字</div>
+    <button id="cardClose" type="button" aria-label="关闭">×</button>
   </div>
 
-  <div id="navs">
-    <button id="prev" type="button" aria-label="上一张">‹</button>
-    <button id="next" type="button" aria-label="下一张">›</button>
-  </div>
-  <div id="dots"><i class="on"></i><i></i><i></i></div>
-  <div id="galleryHint">轻点图片可换图 · 轻点文字可改字 · 左右滑动翻页</div>
   <input id="filePick" type="file" accept="image/*">
 </div>
 <audio id="song" preload="auto" loop>
@@ -467,6 +527,7 @@
       if(t2){ t2.style.transition='none'; t2.style.opacity='1'; }
     }
     discStage.classList.add('on');
+    snowStart();
     if(!instant && song){
       try{
         song.volume = 1;
@@ -488,31 +549,31 @@
     discGlow.style.transform = 'translate(-50%,-50%) scale(' + (1 + lvl*0.10).toFixed(3) + ')';
   }
 
-  /* ── 相册：左右滑动换图换字，切换时放一圈粒子 ───────────── */
-  var gallery  = document.getElementById('gallery');
-  var slidesEl = document.getElementById('slides');
-  var dotBox   = document.getElementById('dots');
-  var filePick = document.getElementById('filePick');
-  var fx       = document.getElementById('fx');
-  var fxc      = fx ? fx.getContext('2d') : null;
-  var slides   = slidesEl ? Array.prototype.slice.call(slidesEl.querySelectorAll('.slide')) : [];
-  var cur = 0, pickIdx = 0;
+  /* ── 地上的礼物盒：点一下，打开属于它的那张图和那段字 ───────────── */
+  var giftRow   = document.getElementById('giftRow');
+  var cardEl    = document.getElementById('card');
+  var cardImg   = cardEl ? cardEl.querySelector('.pic img') : null;
+  var cardH     = cardEl ? cardEl.querySelector('.cap .h') : null;
+  var cardD     = cardEl ? cardEl.querySelector('.cap .d') : null;
+  var cardClose = document.getElementById('cardClose');
+  var filePick  = document.getElementById('filePick');
+  var fx        = document.getElementById('fx');
+  var fxc       = fx ? fx.getContext('2d') : null;
+  var boxes     = giftRow ? Array.prototype.slice.call(giftRow.querySelectorAll('.gbox')) : [];
+  var curCard = -1, pickIdx = 0;
+
+  /* 五个盒子里默认装的东西：一张图 + 一段话 */
+  var GIFTS = [
+    {img:'https://aka.doubaocdn.com/s/6IRShLxcXx', h:'第一份 · 灯', d:'你说想看一棵真的树，于是我把整片夜都点亮了。'},
+    {img:'https://aka.doubaocdn.com/s/PbzSUIblrM', h:'第二份 · 雪', d:'隔着一层玻璃，世界安静下来，只剩杯子里那点热气。'},
+    {img:'https://aka.doubaocdn.com/s/9VrhIXH7Ja', h:'第三份 · 纸', d:'今年这一页很短，但每一个字都留给你。'},
+    {img:'https://aka.doubaocdn.com/s/7nP39KrQhN', h:'第四份 · 火', d:'炉子烧得很旺，我给你留了半张毯子。'},
+    {img:'https://aka.doubaocdn.com/s/R5qTfzRLEu', h:'第五份 · 你', d:'前面的都可以不要，这一份只想亲手递给你。'}
+  ];
 
   var LS_P = 'xm_photo_', LS_H = 'xm_head_', LS_D = 'xm_desc_';
   function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
-
-  /* 用户在页面上换过的图 / 改过的字，都记在本地，刷新后还在 */
-  function restoreEdits(){
-    slides.forEach(function(s, i){
-      var img = s.querySelector('img');
-      var h = s.querySelector('.cap .h');
-      var d = s.querySelector('.cap .d');
-      var sp = lsGet(LS_P + i); if(sp && img) img.src = sp;
-      var hh = lsGet(LS_H + i); if(hh && h) h.textContent = hh;
-      var dd = lsGet(LS_D + i); if(dd && d) d.textContent = dd;
-    });
-  }
 
   /* 上传的图先压到 1400px 的 jpg 再存，免得把 localStorage 撑爆 */
   function toDataURL(file, cb){
@@ -615,119 +676,141 @@
     else { fxRaf = 0; fxPrev = 0; fxc.clearRect(0,0,FW,FH); }
   }
 
-  function galleryFx(){
-    if(!gallery) return;
-    var r = gallery.getBoundingClientRect();
-    var gx = r.left + r.width/2, gy = r.top + r.height*0.54;
-    var big = Math.max(r.width, r.height);
-    burstAt(gx, gy, {n: 150, spread: big*0.66});
-    rippleAt(gx, gy, big*0.16, big*0.60, 1.05);
+  function cardBurst(x, y, size){
+    burstAt(x, y, {n: 112, spread: size*0.82});
+    rippleAt(x, y, size*0.16, size*0.70, 0.95);
   }
 
-  function goSlide(i){
-    if(!slides.length || !slidesEl) return;
-    i = (i + slides.length) % slides.length;
-    var changed = (i !== cur);
-    cur = i;
-    slidesEl.style.transition = '';
-    slidesEl.style.transform = 'translateX(' + (-i*100) + '%)';
-    slides.forEach(function(s,k){ s.classList.toggle('active', k===i); });
-    if(dotBox){
-      Array.prototype.forEach.call(dotBox.children, function(d,k){ d.classList.toggle('on', k===i); });
+  /* 打开第 i 个盒子：把它的图和字填进卡片 */
+  function openCard(i){
+    var g = GIFTS[i];
+    if(!g || !cardEl) return;
+    curCard = i; pickIdx = i;
+    var sp = lsGet(LS_P + i), hh = lsGet(LS_H + i), dd = lsGet(LS_D + i);
+    if(cardImg) cardImg.src = sp || g.img;
+    if(cardH) cardH.textContent = hh || g.h;
+    if(cardD) cardD.textContent = dd || g.d;
+    cardEl.classList.add('on');
+    if(boxes[i]){
+      var r = boxes[i].getBoundingClientRect();
+      cardBurst(r.left + r.width/2, r.top + r.height*0.4, Math.max(r.width, r.height));
     }
-    if(changed) galleryFx();
   }
 
-  /* 拖动 / 轻点 */
-  var gDown = false, gX0 = 0, gY0 = 0, gDX = 0, gDragged = false, gT0 = 0, gPid = 0;
-  function isEditing(t){
-    return !!(t && t.closest && t.closest('[contenteditable]'));
+  function closeCard(){
+    if(!cardEl || !cardEl.classList.contains('on')) return;
+    cardEl.classList.remove('on');
+    curCard = -1;
   }
-  if(gallery){
-    gallery.addEventListener('pointerdown', function(e){
-      if(isEditing(e.target)) return;
-      gDown = true; gX0 = e.clientX; gY0 = e.clientY; gDX = 0; gDragged = false;
-      gT0 = Date.now(); gPid = e.pointerId;
-      try{ gallery.setPointerCapture(e.pointerId); }catch(err){}
+
+  boxes.forEach(function(b, i){
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      openCard(i);
     });
-    gallery.addEventListener('pointermove', function(e){
-      if(!gDown) return;
-      gDX = e.clientX - gX0;
-      if(!gDragged && (Math.abs(gDX) > 8 || Math.abs(e.clientY-gY0) > 14)) gDragged = true;
-      if(gDragged){
-        var pct = gDX / (gallery.clientWidth || 1) * 100;
-        slidesEl.style.transition = 'none';
-        slidesEl.style.transform = 'translateX(' + (-cur*100 + pct) + '%)';
-      }
+  });
+
+  if(cardClose) cardClose.addEventListener('click', function(e){ e.stopPropagation(); closeCard(); });
+
+  /* 点卡片以外的地方就把它收回去 */
+  if(discStage){
+    discStage.addEventListener('click', function(e){
+      if(!cardEl || !cardEl.classList.contains('on')) return;
+      if(e.target.closest && (e.target.closest('#card') || e.target.closest('.gbox'))) return;
+      closeCard();
     });
-    function gEnd(e){
-      if(!gDown) return;
-      gDown = false;
-      var w = gallery.clientWidth || 1;
-      var far = Math.abs(gDX) > Math.max(36, w*0.15);
-      if(far && gDX < 0) goSlide(cur+1);
-      else if(far && gDX > 0) goSlide(cur-1);
-      else if(!gDragged && Date.now()-gT0 < 520){
-        if(e.target && e.target.tagName === 'IMG'){
-          pickIdx = cur;
-          if(filePick) filePick.click();
-        } else {
-          slidesEl.style.transition = '';
-          slidesEl.style.transform = 'translateX(' + (-cur*100) + '%)';
-        }
-      } else {
-        slidesEl.style.transition = '';
-        slidesEl.style.transform = 'translateX(' + (-cur*100) + '%)';
-      }
-    }
-    gallery.addEventListener('pointerup', gEnd);
-    gallery.addEventListener('pointercancel', gEnd);
-    gallery.addEventListener('pointerleave', function(e){ if(gDown) gEnd(e); });
+  }
+
+  /* 点卡片里的图 = 换一张本地图片 */
+  if(cardImg){
+    cardImg.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(curCard < 0) return;
+      pickIdx = curCard;
+      if(filePick) filePick.click();
+    });
   }
 
   if(filePick){
     filePick.addEventListener('change', function(){
       var f = filePick.files && filePick.files[0];
       filePick.value = '';
-      if(!f) return;
+      if(!f || pickIdx < 0) return;
       toDataURL(f, function(url){
         if(!url) return;
-        var s = slides[pickIdx];
-        if(!s) return;
-        var img = s.querySelector('img');
-        if(img) img.src = url;
+        if(cardImg && curCard === pickIdx) cardImg.src = url;
         try{ localStorage.setItem(LS_P + pickIdx, url); }catch(err){}
-        var r = gallery ? gallery.getBoundingClientRect() : null;
-        if(r) burstAt(r.left + r.width/2, r.top + r.height*0.5, {n: 90, spread: Math.max(r.width,r.height)*0.5});
+        var r = cardEl ? cardEl.getBoundingClientRect() : null;
+        if(r) cardBurst(r.left + r.width/2, r.top + r.height*0.52, Math.max(r.width, r.height)*0.62);
       });
     });
   }
 
-  /* 改字即时落盘 */
-  slides.forEach(function(s, i){
-    var h = s.querySelector('.cap .h');
-    var d = s.querySelector('.cap .d');
-    if(h) h.addEventListener('input', function(){ lsSet(LS_H + i, h.textContent); });
-    if(d) d.addEventListener('input', function(){ lsSet(LS_D + i, d.textContent); });
-  });
+  /* 改字即时存到本地，下次打开还是你写的 */
+  if(cardH) cardH.addEventListener('input', function(){ if(curCard >= 0) lsSet(LS_H + curCard, cardH.textContent); });
+  if(cardD) cardD.addEventListener('input', function(){ if(curCard >= 0) lsSet(LS_D + curCard, cardD.textContent); });
 
-  if(dotBox){
-    Array.prototype.forEach.call(dotBox.children, function(d, k){
-      d.addEventListener('click', function(e){ e.stopPropagation(); goSlide(k); });
-    });
-  }
-  var prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next');
-  if(prevBtn) prevBtn.addEventListener('click', function(e){ e.stopPropagation(); goSlide(cur-1); });
-  if(nextBtn) nextBtn.addEventListener('click', function(e){ e.stopPropagation(); goSlide(cur+1); });
-
-  /* 桌面端也能用左右方向键翻 */
   window.addEventListener('keydown', function(e){
-    if(!discOn) return;
-    if(e.key === 'ArrowLeft'){ goSlide(cur-1); }
-    else if(e.key === 'ArrowRight'){ goSlide(cur+1); }
+    if(e.key === 'Escape') closeCard();
   });
 
-  restoreEdits();
+  /* ── 整页飘雪（第三页自己的一层） ───────────── */
+  var snowCv = document.getElementById('snow');
+  var sctx = snowCv ? snowCv.getContext('2d') : null;
+  var SW = 0, SH = 0, SDPR = 1, FLAKES = [], snowRaf = 0, snowPrev = 0;
+
+  function buildFlakes(){
+    var n = clamp(Math.round(SW*SH/8200), 60, 170);
+    FLAKES.length = 0;
+    for(var i=0;i<n;i++){
+      FLAKES.push({
+        x: rnd(0,SW), y: rnd(-SH, SH),
+        r: rnd(0.6, 2.6),
+        vy: rnd(16, 58),
+        amp: rnd(5, 24),
+        ph: rnd(0,TAU),
+        sp: rnd(0.6, 2.0)
+      });
+    }
+  }
+
+  function snowResize(){
+    if(!snowCv || !sctx) return;
+    SDPR = Math.min(2, window.devicePixelRatio || 1);
+    SW = window.innerWidth; SH = window.innerHeight;
+    snowCv.width = Math.round(SW*SDPR); snowCv.height = Math.round(SH*SDPR);
+    snowCv.style.width = SW+'px'; snowCv.style.height = SH+'px';
+    sctx.setTransform(SDPR,0,0,SDPR,0,0);
+    buildFlakes();
+  }
+
+  function snowLoop(ts){
+    if(!sctx){ snowRaf = 0; return; }
+    var dt = snowPrev ? Math.min(0.05, (ts-snowPrev)/1000) : 0.016;
+    snowPrev = ts;
+    sctx.clearRect(0,0,SW,SH);
+    sctx.globalCompositeOperation = 'lighter';
+    for(var i=0;i<FLAKES.length;i++){
+      var f = FLAKES[i];
+      f.y += f.vy*dt;
+      f.ph += f.sp*dt;
+      if(f.y > SH + 14){ f.y = -14; f.x = rnd(0,SW); }
+      var fx2 = f.x + Math.sin(f.ph)*f.amp;
+      if(f.r > 1.95){
+        sctx.fillStyle = 'rgba(220,236,255,.18)';
+        sctx.beginPath(); sctx.arc(fx2, f.y, f.r*2.9, 0, TAU); sctx.fill();
+      }
+      sctx.fillStyle = 'rgba(242,249,255,.74)';
+      sctx.beginPath(); sctx.arc(fx2, f.y, f.r, 0, TAU); sctx.fill();
+    }
+    sctx.globalCompositeOperation = 'source-over';
+    snowRaf = requestAnimationFrame(snowLoop);
+  }
+
+  function snowStart(){
+    if(!sctx) return;
+    if(!snowRaf){ snowPrev = 0; snowRaf = requestAnimationFrame(snowLoop); }
+  }
 
   /* 圣诞倒计时：算到最近的一个 12 月 25 日 00:00（本地时间） */
   function nextXmas(){
@@ -960,6 +1043,7 @@
     ctx.setTransform(DPR,0,0,DPR,0,0);
     build();
     fxResize();
+    snowResize();
 
     /* 文字排版：居中在树的正上方 */
     if(words){
