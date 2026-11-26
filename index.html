@@ -6,6 +6,7 @@
 <title>Merry Christmas · 2026</title>
 <link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Great+Vibes&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#000;overflow:hidden}
   body{-webkit-tap-highlight-color:transparent;transition:opacity .42s ease}
@@ -319,12 +320,13 @@
   }
   .gbox:hover .bow{filter:drop-shadow(0 0 16px rgba(255,214,158,.8))}
 
-  /* 点开后的那一页：图 + 可改的字 */
+  /* 点开后的那一页：左图 + 右字，行楷慢慢浮出来 */
   #card{
-    position:absolute;left:50%;top:45%;
-    transform:translate(-50%,-50%) scale(.86);
-    width:min(74vw,42vh);aspect-ratio:3/4;
-    border-radius:16px;overflow:hidden;background:#08050a;
+    position:absolute;left:50%;top:46%;
+    transform:translate(-50%,-50%) scale(.90);
+    width:min(90vw,900px);height:min(58vh,470px);
+    border-radius:18px;overflow:hidden;background:#090510;
+    display:flex;align-items:stretch;
     box-shadow:
       0 30px 84px rgba(0,0,0,.82),
       0 0 0 1px rgba(255,214,232,.20),
@@ -334,28 +336,47 @@
   }
   #card.on{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
 
-  #card .pic{position:absolute;inset:0}
+  #card .pic{position:relative;inset:auto;flex:0 0 42%;min-width:0}
   #card .pic img{width:100%;height:100%;object-fit:cover;display:block}
   #card .pic::after{
     content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(to top, rgba(3,1,6,.95) 0%, rgba(3,1,6,.70) 30%, rgba(3,1,6,.05) 62%, rgba(3,1,6,0) 84%);
+    background:linear-gradient(90deg, rgba(9,5,16,0) 55%, rgba(9,5,16,.55) 82%, rgba(9,5,16,.96) 100%);
   }
   #card .cap{
-    position:absolute;left:0;right:0;bottom:0;z-index:2;
-    padding:7% 7% 8.5%;
-    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-    color:#ffdcea;
+    position:relative;left:auto;right:auto;bottom:auto;z-index:2;
+    flex:1 1 auto;min-width:0;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(18px,3.6vw,46px) clamp(20px,3.4vw,44px);
+    font-family:"Zhi Mang Xing","STXingkai","华文行楷","KaiTi","楷体",cursive,serif;
+    color:#fff;
   }
-  #card .cap .h{
-    font-size:min(4.4vmin,22px);font-weight:600;letter-spacing:.05em;
-    margin:0 0 .34em;white-space:pre-wrap;
-    color:#fff2f8;outline:none;
-    text-shadow:0 0 18px rgba(255,86,164,.55), 0 2px 10px rgba(0,0,0,.6);
-  }
+  #card .cap .h{display:none}
   #card .cap .d{
-    font-size:min(2.7vmin,14.5px);font-weight:300;line-height:1.75;letter-spacing:.02em;
-    color:rgba(255,222,236,.86);outline:none;margin:0;white-space:pre-wrap;
+    font-family:"Zhi Mang Xing","STXingkai","华文行楷","KaiTi","楷体",cursive,serif;
+    font-size:clamp(19px,2vw + 11px,34px);font-weight:400;
+    line-height:1.85;letter-spacing:.03em;
+    color:#ffffff;outline:none;margin:0;white-space:pre-wrap;
+    text-shadow:0 0 24px rgba(255,170,205,.40), 0 2px 14px rgba(0,0,0,.7);
+    opacity:0;
   }
+  #card .cap .z{
+    margin-top:clamp(6px,1.2vh,14px);
+    align-self:flex-end;
+    font-family:"Zhi Mang Xing","STXingkai","华文行楷","KaiTi","楷体",cursive,serif;
+    font-size:clamp(16px,1.4vw + 5px,24px);letter-spacing:.10em;
+    color:rgba(255,255,255,.72);
+    text-shadow:0 0 20px rgba(255,150,195,.40);
+    opacity:0;
+  }
+  @keyframes wordIn{
+    from{opacity:0;filter:blur(7px);transform:translateY(9px)}
+    to{opacity:1;filter:blur(0);transform:translateY(0)}
+  }
+  #card.on .cap .d{animation:wordIn 2.6s cubic-bezier(.2,.7,.2,1) .35s forwards}
+  #card.on .cap .z{animation:wordIn 1.8s cubic-bezier(.2,.7,.2,1) 2.5s forwards}
+  /* 定格调试模式（?at=）关掉了所有动画，这里让字直接可见 */
+  #discStage.no-anim #card .cap .d,
+  #discStage.no-anim #card .cap .z{opacity:1}
   #card .cap [contenteditable]:focus{
     background:rgba(255,120,180,.13);
     box-shadow:0 0 0 1px rgba(255,150,200,.42), 0 0 22px rgba(255,80,150,.22);
@@ -363,7 +384,7 @@
   }
 
   #cardTip{
-    position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:3;
+    position:absolute;right:52px;top:12px;left:auto;transform:none;z-index:3;
     padding:.34em .86em;border-radius:999px;white-space:nowrap;
     background:rgba(6,2,10,.58);border:1px solid rgba(255,204,228,.26);
     -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
@@ -532,10 +553,11 @@
   </div>
 
   <div id="card">
-    <div class="pic"><img src="https://aka.doubaocdn.com/s/6IRShLxcXx" alt="" draggable="false"></div>
+    <div class="pic"><img src="https://aka.doubaocdn.com/s/lNmUO0Uscm" alt="" draggable="false"></div>
     <div class="cap">
-      <div class="h" contenteditable="plaintext-only" spellcheck="false">灯亮起来的那一刻</div>
-      <div class="d" contenteditable="plaintext-only" spellcheck="false">你说想看一棵真的树，于是我把整片夜都点亮了。</div>
+      <div class="h" contenteditable="plaintext-only" spellcheck="false"></div>
+      <div class="d" contenteditable="plaintext-only" spellcheck="false">这是我手机里面保存的为数不多的雪景，我喜欢下雪</div>
+      <div class="z">-Z</div>
     </div>
     <div id="cardTip">点图片换图 · 点文字改字</div>
     <button id="cardClose" type="button" aria-label="关闭">×</button>
@@ -711,16 +733,28 @@
 
   /* 五个盒子里默认装的东西：一张图 + 一段话 */
   var GIFTS = [
-    {img:'https://aka.doubaocdn.com/s/6IRShLxcXx', h:'第一份 · 灯', d:'你说想看一棵真的树，于是我把整片夜都点亮了。'},
-    {img:'https://aka.doubaocdn.com/s/PbzSUIblrM', h:'第二份 · 雪', d:'隔着一层玻璃，世界安静下来，只剩杯子里那点热气。'},
-    {img:'https://aka.doubaocdn.com/s/9VrhIXH7Ja', h:'第三份 · 纸', d:'今年这一页很短，但每一个字都留给你。'},
-    {img:'https://aka.doubaocdn.com/s/7nP39KrQhN', h:'第四份 · 火', d:'炉子烧得很旺，我给你留了半张毯子。'},
-    {img:'https://aka.doubaocdn.com/s/R5qTfzRLEu', h:'第五份 · 你', d:'前面的都可以不要，这一份只想亲手递给你。'}
+    {img:'https://aka.doubaocdn.com/s/lNmUO0Uscm', h:'', d:'这是我手机里面保存的为数不多的雪景，我喜欢下雪'},
+    {img:'https://aka.doubaocdn.com/s/S04fz0UDCe', h:'', d:'我也很喜欢这张，熟悉嘛？很自由'},
+    {img:'https://aka.doubaocdn.com/s/ReSx27Pi59', h:'', d:'这是你新发我的，很好看，你说的很对，是忧郁与想不出来词了'},
+    {img:'https://aka.doubaocdn.com/s/Uecmb3tHEI', h:'', d:'这一张十分美萌，虽然其他的也很好看就是了'},
+    {img:'https://aka.doubaocdn.com/s/s5ia78pcIX', h:'', d:'这张像小猫'}
   ];
 
   var LS_P = 'xm_photo_', LS_H = 'xm_head_', LS_D = 'xm_desc_';
   function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  /* ?reset=1 ：清掉本机改过的图和字，回到页面里写的默认那一套 */
+  if(/[?&]reset=1/.test(location.search)){
+    for(var ri=0; ri<GIFTS.length; ri++){
+      try{
+        localStorage.removeItem(LS_P+ri);
+        localStorage.removeItem(LS_H+ri);
+        localStorage.removeItem(LS_D+ri);
+      }catch(e){}
+    }
+    try{ localStorage.removeItem('xm_lit'); }catch(e){}
+  }
 
   /* 上传的图先压到 1400px 的 jpg 再存，免得把 localStorage 撑爆 */
   function toDataURL(file, cb){
@@ -840,6 +874,8 @@
     if(cardImg) cardImg.src = sp || g.img;
     if(cardH) cardH.textContent = hh || g.h;
     if(cardD) cardD.textContent = dd || g.d;
+    cardEl.classList.remove('on');
+    void cardEl.offsetWidth;          /* 让文字浮现的动画每次都重放 */
     cardEl.classList.add('on');
     boxes.forEach(function(b, k){ b.classList.toggle('open', k === i); });
     lightUp(i);
