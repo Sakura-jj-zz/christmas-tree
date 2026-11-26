@@ -728,9 +728,9 @@
     for(var i = 0; i < ground.length; i++){
       var g = ground[i];
       var tw = reduce ? 0.85 : 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(now * g.sp + g.ph));
-      var a = g.a * tw * (1 + boost * 2.4);
+      var a = g.a * tw * (1 + boost * 1.35);
       if(a > 1) a = 1;
-      var size = g.r * 9 * (1 + boost * 1.2);
+      var size = g.r * 9 * (1 + boost * 0.65);
       var img = sprites[g.gold ? 2 : 0];
       ctx.globalAlpha = a;
       ctx.drawImage(img, g.x - size * 0.5, g.y - size * 0.5, size, size);
