@@ -407,7 +407,7 @@
         <figcaption>十二月的窗台。光只够照亮眼前这一点。</figcaption>
       </figure>
       <div class="prose">
-        <p>上面那棵树由光点沿一条螺旋排成，从底座绕到顶端，一共八圈。它没有树叶，也没有树皮，<strong>灯串就是它的全部结构</strong>。</p>
+        <p>上面那棵树由光点沿一条螺旋排成，从底座绕到顶端，一共十三圈。它没有树叶，也没有树皮，<strong>灯串就是它的全部结构</strong>。</p>
         <p>近处的点亮，远处的点暗；雪落下来，有的快，有的慢。这不是物理，只是想让它看起来像真的。</p>
         <p>每年十二月，人们把常青树搬进屋里。树不解释什么，它只是站在那里，让房间亮一点。</p>
       </div>
@@ -456,6 +456,7 @@
   var cx = 0, cy = 0, treeH = 0, baseR = 0, persp = 0, desk = false;
   var pts = [], flakes = [], sky = [], sprites = [];
   var wishLights = [];
+  var canopy = null, canopyW = 0, canopyH = 0;
   var rotSmooth = 0, rotTarget = 0, rotAuto = 0;
   var t0 = performance.now();
   var running = true;
@@ -506,6 +507,35 @@
     }
     baseR = treeH * 0.295;
     persp = baseR * 2.5;
+  }
+
+  function buildCanopy(){
+    canopyW = Math.max(120, Math.round(baseR * 2.4));
+    canopyH = Math.max(160, Math.round(treeH * 1.02));
+    if(!canopy) canopy = document.createElement('canvas');
+    canopy.width = canopyW;
+    canopy.height = canopyH;
+    var g = canopy.getContext('2d');
+    g.clearRect(0, 0, canopyW, canopyH);
+
+    var ccx = canopyW / 2;
+    var count = Math.round(canopyW * canopyH / 42);
+    if(count > 9000) count = 9000;
+
+    for(var i = 0; i < count; i++){
+      var v = Math.random();
+      var maxR = canopyW * 0.44 * Math.pow(v, 0.98);
+      var dx = (Math.random() * 2 - 1) * maxR;
+      var a = (0.028 + Math.random() * 0.052) * (0.34 + v * 0.92);
+      g.fillStyle = 'rgba(54,120,88,' + a.toFixed(3) + ')';
+      var sz = 1 + Math.random() * 2;
+      g.fillRect(ccx + dx, v * canopyH, sz, sz);
+    }
+  }
+
+  function drawCanopy(){
+    if(!canopy || !canopyW) return;
+    ctx.drawImage(canopy, cx - canopyW * 0.5, cy - treeH * 0.5, canopyW, treeH * 1.02);
   }
 
   function buildTree(){
@@ -674,6 +704,7 @@
     ctx.clearRect(0, 0, W, H);
     drawSky(now);
     drawGroundPool();
+    drawCanopy();
     var rotY = rotSmooth + rotAuto;
     drawTree(now, rotY);
     drawStar(now);
@@ -703,6 +734,7 @@
   function onResize(){
     measure();
     buildTree();
+    buildCanopy();
     syncLights();
     if(reduce){
       draw(performance.now());
@@ -715,6 +747,7 @@
     buildSprites();
     measure();
     buildTree();
+    buildCanopy();
     t0 = performance.now();
 
     window.addEventListener('resize', function(){
