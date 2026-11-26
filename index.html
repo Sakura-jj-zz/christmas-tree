@@ -48,9 +48,9 @@
   /* 右上文字组，右对齐，和视频里的位置一致 */
   .words{
     position:absolute;
-    right:5.4cqw;
-    top:7.2cqw;
-    width:34cqw;
+    right:6.1cqw;
+    top:4.8cqw;
+    width:40cqw;
     text-align:right;
     z-index:3;
     pointer-events:none;
@@ -58,33 +58,34 @@
   }
   .merry{
     font-family:"Great Vibes","Snell Roundhand",cursive;
-    font-size:6.1cqw;
+    font-size:6.6cqw;
     line-height:1;
     color:#ffdff2;
     text-shadow:
       0 0 .4cqw rgba(255,166,214,.95),
-      0 0 1.3cqw rgba(255,110,188,.75),
-      0 0 3.2cqw rgba(214,60,150,.45);
+      0 0 1.4cqw rgba(255,110,188,.75),
+      0 0 3.4cqw rgba(214,60,150,.45);
     white-space:nowrap;
   }
   .sub{
-    margin-top:.75cqw;
-    margin-right:.4cqw;
-    font-size:1.1cqw;
-    letter-spacing:.1em;
+    margin-top:.7cqw;
+    margin-right:.3cqw;
+    font-size:1.5cqw;
+    letter-spacing:.08em;
     color:rgba(255,226,240,.6);
     text-shadow:0 0 .5cqw rgba(255,140,200,.5);
   }
   .cn{
-    margin-top:4.2cqw;
+    margin-top:2.4cqw;
     display:flex;
     flex-direction:column;
-    gap:1.15cqw;
+    gap:.9cqw;
     align-items:flex-end;
   }
   .cn .ln{
-    font-size:1.92cqw;
-    letter-spacing:.24em;
+    font-size:2.6cqw;
+    line-height:1.5;
+    letter-spacing:.22em;
     color:#fdeaf6;
     text-shadow:0 0 .6cqw rgba(255,150,205,.6), 0 0 1.8cqw rgba(200,60,140,.35);
     white-space:nowrap;
@@ -92,26 +93,26 @@
     text-align:right;
   }
   .sign{
-    margin-top:6.4cqw;
+    margin-top:11cqw;
     display:flex;
     flex-direction:column;
     align-items:flex-end;
     gap:.6cqw;
   }
   .sign .rule{
-    width:7.4cqw;
+    width:9cqw;
     height:1px;
     background:linear-gradient(to right,transparent,rgba(255,222,238,.55));
     margin-bottom:.3cqw;
   }
   .sign .who{
-    font-size:1.16cqw;
-    letter-spacing:.2em;
+    font-size:1.6cqw;
+    letter-spacing:.22em;
     color:rgba(255,232,242,.78);
     text-shadow:0 0 .4cqw rgba(255,150,200,.4);
   }
   .sign .when{
-    font-size:1.06cqw;
+    font-size:1.45cqw;
     letter-spacing:.16em;
     color:rgba(255,226,240,.5);
     font-family:"Helvetica Neue",Arial,sans-serif;
@@ -237,6 +238,34 @@ var SPC = {
   cyan:   makeSprite('205,240,255', .10)
 };
 
+/* ---------- 配色（点击切换） ---------- */
+function makePal(mainA, mainB, mist){
+  return {
+    sp:    makeSprite(mainA, .17),
+    spHi:  makeSprite(mainB, .21),
+    mist:  makeSprite(mist, .14),
+    ring:  makeSprite(mainA, .16),
+    flare: makeSprite(mainB, .20),
+    fw:    [mainA, mainB, mist],
+    mistC: mist.split(',').map(Number)
+  };
+}
+var PAL = [
+  makePal('255,231,190', '255,247,226', '240,150,205'),  /* 视频原色：暖金 + 洋红 */
+  makePal('212,238,255', '238,250,255', '124,190,255'),  /* 冰蓝 */
+  makePal('255,212,148', '255,240,206', '255,164,104'),  /* 琥珀 */
+  makePal('255,212,230', '255,242,248', '255,116,168')   /* 玫瑰 */
+];
+var palIdx = 0;
+var S = {sp:PAL[0].sp, spHi:PAL[0].spHi, mist:PAL[0].mist, ring:PAL[0].ring, flare:PAL[0].flare};
+
+function usePal(i){
+  palIdx = i % PAL.length;
+  var p = PAL[palIdx];
+  S.sp = p.sp; S.spHi = p.spHi; S.mist = p.mist; S.ring = p.ring; S.flare = p.flare;
+  buildFog();
+}
+
 /* ---------- 尺寸与几何 ---------- */
 function measure(){
   W = stage.clientWidth; H = stage.clientHeight;
@@ -247,10 +276,10 @@ function measure(){
 
   /* 和视频一致：树偏左，树顶在画面上部，树脚压在地平线偏下 */
   cx = W*0.355;
-  topY = H*0.135;
-  groundY = H*0.815;
+  topY = H*0.125;
+  groundY = H*0.833;
   treeH = groundY - topY;
-  baseR = treeH*0.186;
+  baseR = treeH*0.167;
   cy = (topY + groundY)/2;
 }
 
@@ -365,6 +394,147 @@ function buildBursts(){
   }
 }
 
+/* ---------- 整屏旋转星云（离屏预渲染，每帧只旋转贴图） ---------- */
+var neb = {start:-99, dur:13, nextAt:6};
+var nebCv = null;
+
+function buildNebula(){
+  var S2 = 1024, C = S2/2;
+  nebCv = document.createElement('canvas');
+  nebCv.width = nebCv.height = S2;
+  var g = nebCv.getContext('2d');
+  g.globalCompositeOperation = 'lighter';
+  var arms = 5;
+
+  /* 旋臂雾带：连续的柔光带，构成星系主体 */
+  var segs = 150;
+  for(var a=0;a<arms;a++){
+    for(var i=0;i<segs;i++){
+      var u = i/segs;
+      var r = (0.045 + u*0.955) * C * 0.94;
+      var ang = a*(Math.PI*2/arms) + u*2.45;
+      var x = C + Math.cos(ang)*r;
+      var y = C + Math.sin(ang)*r;
+      var rad = 5 + u*22;
+      var al = (0.15 - u*0.05) * (0.5 + 0.5*Math.random());
+      var grd = g.createRadialGradient(x,y,0,x,y,rad);
+      grd.addColorStop(0,   'rgba(255,240,250,'+al+')');
+      grd.addColorStop(.45, 'rgba(236,180,224,'+(al*0.55)+')');
+      grd.addColorStop(1,   'rgba(198,116,188,0)');
+      g.fillStyle = grd;
+      g.beginPath(); g.arc(x,y,rad,0,6.2832); g.fill();
+    }
+  }
+
+  /* 散在的亮星点 */
+  for(var k=0;k<2400;k++){
+    var u2 = Math.random();
+    var a2 = ((Math.random()*arms)|0)*(Math.PI*2/arms) + u2*2.45 + rnd(-.34,.34);
+    var r2 = (0.045 + u2*0.955)*C*0.94;
+    var x2 = C + Math.cos(a2)*r2;
+    var y2 = C + Math.sin(a2)*r2;
+    var sz = rnd(.8,2.8);
+    g.fillStyle = 'rgba(255,'+Math.round(218+37*Math.random())+','+Math.round(232+22*Math.random())+','+rnd(.22,.9)+')';
+    g.fillRect(x2, y2, sz, sz);
+  }
+
+  /* 中心亮核 */
+  var cg = g.createRadialGradient(C,C,0,C,C,C*0.15);
+  cg.addColorStop(0,   'rgba(255,252,244,.9)');
+  cg.addColorStop(.30, 'rgba(255,234,216,.5)');
+  cg.addColorStop(.65, 'rgba(232,160,206,.16)');
+  cg.addColorStop(1,   'rgba(210,120,190,0)');
+  g.fillStyle = cg;
+  g.beginPath(); g.arc(C,C,C*0.15,0,6.2832); g.fill();
+
+  /* 径向遮罩：抹掉方形边界，让星云自然消失在夜空里 */
+  g.globalCompositeOperation = 'destination-in';
+  var mask = g.createRadialGradient(C,C,C*0.50,C,C,C*0.97);
+  mask.addColorStop(0,   'rgba(0,0,0,1)');
+  mask.addColorStop(.70, 'rgba(0,0,0,.55)');
+  mask.addColorStop(1,   'rgba(0,0,0,0)');
+  g.fillStyle = mask;
+  g.fillRect(0,0,S2,S2);
+}
+
+function drawNebula(t){
+  if(!nebCv) return;
+  var p = (t - neb.start)/neb.dur;
+  if(p < 0 || p > 1) return;
+  var fade = p < .16 ? p/.16 : (p > .74 ? (1-p)/.26 : 1);
+  if(fade <= 0.01) return;
+
+  var RR = Math.max(W,H)*0.54;
+  var cxn = W*0.50, cyn = H*0.615;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = fade * 0.72;
+  ctx.translate(cxn, cyn);
+  ctx.rotate(t*0.07);
+  ctx.scale(1, 0.44);
+  ctx.drawImage(nebCv, -RR, -RR, RR*2, RR*2);
+  ctx.restore();
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 烟花 ---------- */
+var FW_COLS = ['255,226,168','255,248,230','255,168,214','214,164,255','176,224,255','255,152,152'];
+var FWS = FW_COLS.map(function(c){ return makeSprite(c, .15); });
+var sparks = [];
+
+function spawnFirework(x, y, n, spread){
+  n = n || 74;
+  spread = spread || 1;
+  var scale = Math.max(W, H);
+  for(var i=0;i<n;i++){
+    var ang = Math.random()*6.2832;
+    var sp = rnd(.25,1.0);
+    var v = scale * rnd(.07, .28) * sp * spread;
+    var ci = (Math.random()*FWS.length)|0;
+    sparks.push({
+      x:x, y:y,
+      vx: Math.cos(ang)*v*rnd(.82,1.28),
+      vy: Math.sin(ang)*v*rnd(.82,1.28) - scale*0.028,
+      life:0,
+      max: rnd(1.6,2.8),
+      sz: rnd(3.2,8.0),
+      spr: FWS[ci]
+    });
+  }
+}
+
+function stepSparks(dt){
+  var G = Math.max(W,H)*0.55;
+  for(var i=sparks.length-1;i>=0;i--){
+    var p = sparks[i];
+    p.life += dt;
+    if(p.life >= p.max){ sparks.splice(i,1); continue; }
+    p.vy += G*dt;
+    p.vx *= (1 - 1.30*dt);
+    p.vy *= (1 - 1.05*dt);
+    p.x += p.vx*dt;
+    p.y += p.vy*dt;
+  }
+}
+
+function drawSparks(){
+  if(!sparks.length) return;
+  ctx.globalCompositeOperation = 'lighter';
+  for(var i=0;i<sparks.length;i++){
+    var p = sparks[i];
+    var u = p.life/p.max;
+    var a = Math.pow(1-u, 1.1) * 1.0;
+    if(a < .04) continue;
+    ctx.globalAlpha = clamp(a,0,1);
+    var s = p.sz*(1 + u*0.55);
+    ctx.drawImage(p.spr, p.x-s/2, p.y-s/2, s, s);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
 /* ---------- 雾层预渲染 ---------- */
 function buildFog(){
   if(!fog){
@@ -378,6 +548,9 @@ function buildFog(){
   var fx = fw/2;
   var fTop = fh*0.02, fBot = fh*0.952;
 
+  var mc = PAL[palIdx].mistC;
+  var mr = Math.min(255, mc[0]), mg = Math.min(255, mc[1]), mb = Math.min(255, mc[2]);
+
   /* 锥形底光：水平方向柔化，垂直方向分段，避免出现硬边 */
   var segs = 72;
   for(var sgi=0; sgi<segs; sgi++){
@@ -387,10 +560,10 @@ function buildFog(){
     var halfW = (fw*0.5) * (0.03 + 0.97*Math.pow(tt, .88));
     var la = 0.018 + 0.085*Math.pow(tt, 1.35);
     var lg = fogCtx.createLinearGradient(fx-halfW, 0, fx+halfW, 0);
-    lg.addColorStop(0,   'rgba(255,178,220,0)');
-    lg.addColorStop(.45, 'rgba(250,180,222,'+la+')');
-    lg.addColorStop(.55, 'rgba(250,180,222,'+la+')');
-    lg.addColorStop(1,   'rgba(255,178,220,0)');
+    lg.addColorStop(0,   'rgba('+mr+','+mg+','+mb+',0)');
+    lg.addColorStop(.45, 'rgba('+mr+','+mg+','+mb+','+la+')');
+    lg.addColorStop(.55, 'rgba('+mr+','+mg+','+mb+','+la+')');
+    lg.addColorStop(1,   'rgba('+mr+','+mg+','+mb+',0)');
     fogCtx.fillStyle = lg;
     fogCtx.fillRect(fx-halfW, y0, halfW*2, Math.max(1, y1-y0+1));
   }
@@ -404,8 +577,7 @@ function buildFog(){
     var x = fx + (Math.random()<.5?-half:half);
     var v = 1 - Math.abs(x-fx)/Math.max(1,halfMax);
     var a = (0.030 + 0.085*v) * (0.5+0.5*Math.random());
-    var g2 = Math.round(196 + 30*v);
-    fogCtx.fillStyle = 'rgba('+g2+',110,168,'+clamp(a,0,.34)+')';
+    fogCtx.fillStyle = 'rgba('+mr+','+mg+','+mb+','+clamp(a,0,.34)+')';
     var sz = 1 + Math.random()*1.6;
     fogCtx.fillRect(x, y, sz, sz);
   }
@@ -492,7 +664,7 @@ function drawPhantoms(t){
     var fl = reduce ? .8 : (0.62 + 0.38*Math.sin(t*p.sp + p.ph));
     ctx.globalAlpha = p.a * fl * (igniteA);
     var s = p.r*2.6;
-    ctx.drawImage(SPC.pink, p.x - s/2, p.y - s/2, s, s);
+    ctx.drawImage(S.mist, p.x - s/2, p.y - s/2, s, s);
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
@@ -508,7 +680,7 @@ function drawSpiral(t){
     var a = (0.22 + 0.62*p.depth) * fl * (0.55 + 0.45*igniteA);
     var s = p.sz * (p.hot ? 4.6 : 3.1);
     ctx.globalAlpha = clamp(a, 0, .95);
-    ctx.drawImage(p.warm ? SPC.gold : SPC.goldHi, p.x - s/2, p.y - s/2, s, s);
+    ctx.drawImage(p.warm ? S.sp : S.spHi, p.x - s/2, p.y - s/2, s, s);
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
@@ -531,7 +703,7 @@ function drawRing(t){
       var a = (0.10 + 0.55*((z+1)/2)) * (0.72 + 0.28*Math.sin(t*1.4 + u*9));
       var s = 2.6 + ((z+1)/2)*2.4;
       ctx.globalAlpha = clamp(a*(0.5+0.5*igniteA), 0, .9);
-      ctx.drawImage(SPC.gold, x - s/2, y - s/2, s, s);
+      ctx.drawImage(S.ring, x - s/2, y - s/2, s, s);
     }
   }
   ctx.globalAlpha = 1;
@@ -549,7 +721,7 @@ function drawFlare(t){
   /* 中心核 */
   var s = base*4.6;
   ctx.globalAlpha = .95;
-  ctx.drawImage(SPC.goldHi, x - s/2, y - s/2, s, s);
+  ctx.drawImage(S.flare, x - s/2, y - s/2, s, s);
 
   /* 四道长芒 */
   var lens = [1.0, .82, .62, .48, .36];
@@ -621,7 +793,7 @@ function drawBursts(t){
       var a = p.a * fade * 0.72;
       var s = p.sz*2.8;
       ctx.globalAlpha = clamp(a,0,.5);
-      ctx.drawImage(SPC.gold, x-s/2, y-s/2, s, s);
+      ctx.drawImage(S.sp, x-s/2, y-s/2, s, s);
     }
   }
   ctx.globalAlpha = 1;
@@ -657,6 +829,7 @@ function drawSnow(t){
 
 /* ---------- 点亮（点击触发的自下而上扫光） ---------- */
 var igniteStart = -99, igniteA = 1;
+var fwNext = 9, flashAt = -99;
 function ignite(){
   igniteStart = now();
 }
@@ -668,6 +841,16 @@ function now(){ return (performance.now() - t0) / 1000; }
 function draw(){
   var t = now();
 
+  /* 自动放烟花 / 定时来一场整屏星云 */
+  if(t > fwNext){
+    fwNext = t + rnd(11, 18);
+    spawnFirework(W*rnd(.16,.92), H*rnd(.08,.42), 64, 1);
+  }
+  if(t > neb.nextAt){
+    neb.start = t;
+    neb.nextAt = t + rnd(22, 30);
+  }
+
   /* 点亮扫光的进度 */
   var ip = (t - igniteStart) / 2.4;
   if(ip >= 0 && ip <= 1){
@@ -678,6 +861,7 @@ function draw(){
 
   ctx.clearRect(0,0,W,H);
   drawSky();
+  drawNebula(t);
   drawRidge();
   drawStars(t);
   drawGround();
@@ -687,18 +871,39 @@ function draw(){
   drawRing(t);
   drawBursts(t);
   drawFlare(t);
+  drawSparks();
   drawSnow(t);
 
-  /* 扫光：从树顶到树脚的一道高亮，点亮瞬间出现 */
+  /* 扫光：从树顶到树脚的一道柔和光带 */
   if(ip >= 0 && ip <= 1){
     var sy = topY + treeH * ip;
+    var k = Math.sin(Math.min(1, ip) * Math.PI);
     ctx.globalCompositeOperation = 'lighter';
-    var lg = ctx.createLinearGradient(0, sy-H*0.10, 0, sy+H*0.05);
-    lg.addColorStop(0,'rgba(255,220,240,0)');
-    lg.addColorStop(.72,'rgba(255,236,248,'+(0.30*Math.sin(ip*Math.PI))+')');
-    lg.addColorStop(1,'rgba(255,180,220,0)');
-    ctx.fillStyle = lg;
-    ctx.fillRect(cx-baseR*1.7, sy-H*0.10, baseR*3.4, H*0.15);
+    ctx.save();
+    ctx.translate(cx, sy);
+    ctx.scale(1, 0.32);
+    var rr2 = baseR*2.0;
+    var rg = ctx.createRadialGradient(0,0,0,0,0,rr2);
+    rg.addColorStop(0,   'rgba(255,242,252,'+(0.34*k)+')');
+    rg.addColorStop(.42, 'rgba(255,214,240,'+(0.12*k)+')');
+    rg.addColorStop(.75, 'rgba(255,180,224,'+(0.03*k)+')');
+    rg.addColorStop(1,   'rgba(255,170,220,0)');
+    ctx.fillStyle = rg;
+    ctx.beginPath(); ctx.arc(0,0,rr2,0,6.2832); ctx.fill();
+    ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  /* 换色瞬间的白闪 */
+  var sinceFlash = t - flashAt;
+  if(sinceFlash >= 0 && sinceFlash < 0.55){
+    var fa = 1 - sinceFlash/0.55;
+    fa = fa*fa*fa;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.62*fa;
+    ctx.fillStyle = 'rgba(' + PAL[palIdx].fw[0] + ',1)';
+    ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
   }
 }
@@ -712,6 +917,7 @@ function loop(){
 /* 雪与星点的漂移放在时间驱动的位移里，避免逐帧累加误差 */
 function tick(ms){
   var dt = Math.min(64, ms)/1000;
+  stepSparks(dt);
   for(var i=0;i<snow.length;i++){
     var s = snow[i];
     s.y += s.v * dt * 26;
@@ -731,7 +937,12 @@ function rebuildAll(){
   buildSpiral();
   buildPhantoms();
   buildBursts();
+  buildNebula();
   buildFog();
+  sparks.length = 0;
+  fwNext = 9;
+  neb.start = -99;
+  neb.nextAt = 6;
 }
 
 var rafId = 0, lastTs = 0;
@@ -761,10 +972,26 @@ window.addEventListener('resize', function(){
   }, 180);
 });
 
-/* ---------- 点击点亮 ---------- */
+/* ---------- 点击：点亮 + 换色 + 一场烟花 ---------- */
 stage.addEventListener('click', function(){
   if(editing) return;
+
   ignite();
+  usePal(palIdx + 1);
+  flashAt = now();
+
+  /* 树顶上方一发达烟花 */
+  spawnFirework(cx, topY + treeH*0.14, 200, 1.4);
+
+  /* 再连发几发 */
+  var n = 3 + ((Math.random()*3)|0);
+  for(var i=0;i<n;i++){
+    (function(k){
+      setTimeout(function(){
+        spawnFirework(W*rnd(.16,.94), H*rnd(.06,.40), 100, 1);
+      }, 170*(k+1));
+    })(i);
+  }
 });
 
 /* ---------- 文字编辑 ---------- */
