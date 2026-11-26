@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Merry Christmas · 2026</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden}
+  body{-webkit-tap-highlight-color:transparent;transition:opacity .42s ease}
+  body.out{opacity:0}
+
+  #cv{position:fixed;inset:0;width:100%;height:100%;display:block;will-change:transform}
+
+  #veil{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none}
+
+  #go{
+    pointer-events:auto;cursor:pointer;
+    -webkit-appearance:none;appearance:none;
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(255,228,186,.30);
+    border-radius:999px;
+    color:#f2e3c4;
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+    font-weight:300;
+    font-size:clamp(.86rem,2.5vmin,1.06rem);
+    letter-spacing:.46em;
+    padding:clamp(1rem,2.6vmin,1.3rem) clamp(2.6rem,7vmin,3.6rem) clamp(1rem,2.6vmin,1.3rem) calc(clamp(2.6rem,7vmin,3.6rem) + .46em);
+    line-height:1;
+    position:relative;
+    box-shadow:0 0 0 1px rgba(255,236,200,.04) inset, 0 0 24px rgba(255,210,160,.10), 0 0 60px rgba(255,190,150,.05);
+    transition:opacity .34s ease, transform .34s ease, border-color .3s ease, color .3s ease, box-shadow .4s ease;
+    animation:breathe 3.6s ease-in-out infinite;
+  }
+  #go::after{
+    content:"";position:absolute;inset:-1px;border-radius:999px;pointer-events:none;
+    background:radial-gradient(circle at 50% 120%, rgba(255,214,168,.16), rgba(255,214,168,0) 62%);
+  }
+  #go:hover, #go:focus-visible{
+    outline:none;
+    border-color:rgba(255,236,204,.72);
+    color:#fffaf0;
+    box-shadow:0 0 0 1px rgba(255,240,206,.10) inset, 0 0 30px rgba(255,214,160,.30), 0 0 90px rgba(255,180,140,.14);
+  }
+  #go.off{opacity:0;transform:scale(.94);pointer-events:none}
+
+  @keyframes breathe{
+    0%,100%{box-shadow:0 0 0 1px rgba(255,236,200,.04) inset, 0 0 22px rgba(255,210,160,.09), 0 0 56px rgba(255,190,150,.04)}
+    50%{box-shadow:0 0 0 1px rgba(255,236,200,.10) inset, 0 0 34px rgba(255,214,166,.22), 0 0 84px rgba(255,186,146,.09)}
+  }
+  @media (prefers-reduced-motion: reduce){ #go{animation:none} }
+</style>
+</head>
+<body>
+<canvas id="cv" aria-hidden="true"></canvas>
+<div id="veil"><button id="go" type="button" aria-label="进入">进入</button></div>
+<script>
+(function(){
+  var cv = document.getElementById('cv');
+  var ctx = cv.getContext('2d');
+  var go = document.getElementById('go');
+
+  var TAU = Math.PI*2;
+  var W = 0, H = 0, DPR = 1;
+  var cx = 0, cy0 = 0, topY = 0, groundY = 0, treeH = 0, baseR = 0, Rmax = 0, starR = 0;
+
+  var P = [];              /* 粒子 */
+  var started = false, running = false, t0 = 0, rafId = 0, outStarted = false;
+  var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  /* 调帧预览：?at=1.6 会把动画定格在那一秒，方便逐帧检查（正常访问不带这个参数） */
+  var FREEZE = 0;
+  var qm = (location.search || '').match(/[?&]at=([0-9.]+)/);
+  if(qm) FREEZE = parseFloat(qm[1]);
+
+  /* 时间轴（秒） */
+  var T_STAR  = 0.00;   /* 第一颗星升起 */
+  var T_BURST = 0.72;   /* 爆炸起点 */
+  var T_GATHER= 1.50;   /* 开始聚拢 */
+  var T_TREE  = 3.62;   /* 树成形 */
+  var T_OUT   = 4.30;   /* 淡出 */
+
+  function rnd(a,b){ return a + Math.random()*(b-a); }
+  function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+  function easeOutCubic(x){ return 1-Math.pow(1-x,3); }
+  function easeInOutCubic(x){ return x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
+
+  var COLORS = ['255,249,238','255,240,214','255,226,186','250,252,255','255,214,232'];
+
+  function build(){
+    cx = W*0.5;
+    topY = H*0.170;
+    groundY = H*0.885;
+    treeH = groundY - topY;
+    baseR = treeH*0.215;
+    cy0 = H*0.395;              /* 星星 / 爆炸中心 */
+    Rmax = Math.max(W,H)*0.40;
+    starR = Math.min(W,H)*0.085;
+
+    var N = clamp(Math.round(W*H/460), 1400, 2600);
+    var turns = 11.5;
+    P.length = 0;
+
+    for(var i=0;i<N;i++){
+      var u = i/(N-1);                       /* 0 = 树顶, 1 = 树脚 */
+      var y = topY + treeH*u;
+      var ang = u*turns*TAU + rnd(-0.30,0.30);
+      var radial = baseR*Math.pow(u, 1.06);
+      var depth = (i%5===0) ? rnd(0.34,0.94) : 1;   /* 一部分点落进锥体内部，做出体积 */
+      var rr = radial*depth*(0.94 + rnd(-0.06,0.06));
+
+      P.push({
+        tx: cx + Math.cos(ang)*rr,
+        ty: y + Math.sin(ang)*rr*0.075,
+        ang: rnd(0,TAU),                     /* 炸开方向 */
+        br: Math.pow(Math.random(), 1.45),   /* 炸开距离系数：中心更密 */
+        dly: rnd(0,0.30),                    /* 起爆延迟 */
+        sz: rnd(0.45,1.6),
+        c: COLORS[(Math.random()*COLORS.length)|0],
+        big: Math.random()<0.18,
+        trail: Math.random()<0.62,
+        ph: rnd(0,TAU),
+        lx: null, ly: null
+      });
+    }
+  }
+
+  function resize(){
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
+    cv.style.width = W+'px'; cv.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    build();
+  }
+
+  /* 星芒：核心光斑 + 主光束 + 斜向短芒 */
+  function flare(x, y, R, a, rot){
+    if(a<=0.01) return;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.translate(x, y);
+    ctx.rotate(rot||0);
+
+    var core = ctx.createRadialGradient(0,0,0,0,0,R*0.52);
+    core.addColorStop(0,   'rgba(255,252,242,'+ (a) +')');
+    core.addColorStop(0.28,'rgba(255,240,208,'+ (a*0.46) +')');
+    core.addColorStop(1,   'rgba(255,222,172,0)');
+    ctx.fillStyle = core;
+    ctx.beginPath(); ctx.arc(0,0,R*0.52,0,TAU); ctx.fill();
+
+    var beams = [[1.0, 0.030, 0.92], [0.56, 0.020, 0.60], [0.30, 0.013, 0.34]];
+    for(var b=0;b<beams.length;b++){
+      var len = R*beams[b][0], hw = R*beams[b][1], al = a*beams[b][2];
+      for(var k=0;k<(b===0?2:4);k++){
+        ctx.save();
+        ctx.rotate((b===0 ? k*Math.PI/2 : Math.PI/4 + k*Math.PI/2));
+        var g = ctx.createLinearGradient(-len,0,len,0);
+        g.addColorStop(0,   'rgba(255,242,214,0)');
+        g.addColorStop(0.5, 'rgba(255,250,234,'+ al +')');
+        g.addColorStop(1,   'rgba(255,242,214,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(0,-hw); ctx.lineTo(len,0); ctx.lineTo(0,hw); ctx.lineTo(-len,0);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function draw(t){
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0,0,W,H);
+
+    /* 第一颗星：升起 → 爆炸瞬间被冲开 → 收拢时熄灭 */
+    var starIn  = clamp(t/0.62, 0, 1);
+    var starOut = 1 - clamp((t - T_GATHER - 0.10)/0.55, 0, 1);
+    var sa = (1-Math.pow(1-starIn,2.2)) * starOut;
+    var ss = 0.35 + 0.65*(1-Math.pow(1-starIn,3));
+    if(sa > 0.005){
+      flare(cx, cy0, starR*1.15*ss, sa*0.95, t*0.32);
+    }
+
+    /* 爆炸瞬间的整屏闪光：中心亮、边缘暗 */
+    var fl = clamp((t - T_BURST)/0.09, 0, 1) * (1 - clamp((t - T_BURST - 0.16)/0.62, 0, 1));
+    if(fl > 0.002){
+      ctx.globalCompositeOperation = 'lighter';
+      var fg = ctx.createRadialGradient(cx, cy0, 0, cx, cy0, Math.max(W,H)*0.62);
+      fg.addColorStop(0,   'rgba(255,248,232,'+ (fl*0.22) +')');
+      fg.addColorStop(0.42,'rgba(255,238,208,'+ (fl*0.06) +')');
+      fg.addColorStop(1,   'rgba(255,232,200,0)');
+      ctx.fillStyle = fg;
+      ctx.fillRect(0,0,W,H);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    /* 爆炸核心的强光 */
+    var coreA = clamp((t - T_BURST)/0.12, 0, 1) * (1 - clamp((t - T_BURST - 0.12)/0.72, 0, 1));
+    if(coreA > 0.01){
+      flare(cx, cy0, starR*1.05, coreA*0.85, t*0.4);
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.save();
+      ctx.translate(cx, cy0);
+      var cr = starR*2.6;
+      var cg = ctx.createRadialGradient(0,0,0,0,0,cr);
+      cg.addColorStop(0,   'rgba(255,250,236,'+ (coreA*0.85) +')');
+      cg.addColorStop(0.30,'rgba(255,232,196,'+ (coreA*0.34) +')');
+      cg.addColorStop(1,   'rgba(255,220,178,0)');
+      ctx.fillStyle = cg;
+      ctx.beginPath(); ctx.arc(0,0,cr,0,TAU); ctx.fill();
+      ctx.restore();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    /* 粒子：从星点爆开，再回吸成树 */
+    ctx.globalCompositeOperation = 'lighter';
+    for(var i=0;i<P.length;i++){
+      var p = P[i];
+      var bt = clamp((t - T_BURST - p.dly)/1.02, 0, 1);
+      if(bt <= 0) continue;
+      var be = easeOutCubic(bt);
+      var mt = clamp((t - T_GATHER - p.dly*0.62)/2.16, 0, 1);
+      var me = easeInOutCubic(mt);
+
+      var reach = (0.10 + p.br*0.86) * Rmax * be;
+      var ex = cx + Math.cos(p.ang)*reach;
+      var ey = cy0 + Math.sin(p.ang)*reach*0.82;
+
+      var x = ex + (p.tx-ex)*me;
+      var y = ey + (p.ty-ey)*me;
+
+      var a = clamp(bt*3.2, 0, 1);
+      a *= 0.55 + 0.45*me;                    /* 落位时更实 */
+      a *= 0.86 + 0.14*Math.sin(t*2.6 + p.ph);/* 轻轻呼吸闪烁 */
+      a *= 1 - clamp((t - T_OUT - 0.55)/0.9, 0, 1);
+
+      var s = p.sz*(0.82 + 0.30*me);
+
+      if(p.trail && p.lx !== null){
+        var dx = x - p.lx, dy = y - p.ly;
+        var d2 = dx*dx + dy*dy;
+        if(d2 > 676){                          /* 掉帧导致跨度过大，就不拉长线，直接归位 */
+          p.lx = x; p.ly = y;
+        } else if(d2 > 6){
+          ctx.strokeStyle = 'rgba('+p.c+','+ (a*0.42) +')';
+          ctx.lineWidth = Math.max(1, s*0.8);
+          ctx.beginPath(); ctx.moveTo(p.lx, p.ly); ctx.lineTo(x, y); ctx.stroke();
+          p.lx = x; p.ly = y;
+        }
+      } else if(p.lx === null){
+        p.lx = x; p.ly = y;
+      }
+
+      ctx.fillStyle = 'rgba('+p.c+','+ (a*0.94) +')';
+      ctx.beginPath(); ctx.arc(x, y, s, 0, TAU); ctx.fill();
+
+      if(p.big){
+        ctx.fillStyle = 'rgba('+p.c+','+ (a*0.15) +')';
+        ctx.beginPath(); ctx.arc(x, y, s*4.4, 0, TAU); ctx.fill();
+      }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    /* 树成形后：地面光池 + 树顶第二颗星 */
+    var ground = clamp((t - T_TREE + 0.35)/1.2, 0, 1);
+    if(ground > 0.01){
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.save();
+      ctx.translate(cx, groundY + H*0.012);
+      ctx.scale(1, 0.20);
+      var gr = baseR*2.35;
+      var gg = ctx.createRadialGradient(0,0,0,0,0,gr);
+      gg.addColorStop(0,   'rgba(255,244,222,'+ (0.34*ground) +')');
+      gg.addColorStop(0.34,'rgba(255,224,186,'+ (0.18*ground) +')');
+      gg.addColorStop(1,   'rgba(255,206,170,0)');
+      ctx.fillStyle = gg;
+      ctx.beginPath(); ctx.arc(0,0,gr,0,TAU); ctx.fill();
+      ctx.restore();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    var crown = clamp((t - T_TREE)/0.55, 0, 1);
+    if(crown > 0.01){
+      var cc = Math.pow(crown, 1.4);
+      flare(cx, topY + treeH*0.012, starR*0.86*(0.6+0.4*cc), cc*0.92, -t*0.26);
+    }
+
+    if(!FREEZE && !outStarted && started && t >= T_OUT){
+      outStarted = true;
+      setTimeout(function(){
+        document.body.classList.add('out');
+        setTimeout(function(){ location.href = 'tree.html?grown=1'; }, 420);
+      }, 30);
+    }
+  }
+
+  function loop(ts){
+    if(!running){ rafId = 0; return; }
+    var t = FREEZE > 0 ? FREEZE : (ts - t0)/1000;
+    draw(t);
+    rafId = requestAnimationFrame(loop);
+    return rafId;
+  }
+
+  function begin(){
+    if(started) return;
+    started = true;
+    go.classList.add('off');
+    /* 就算系统开了"减少动态"，也照常把这场动画放完，只是节奏放快一点 */
+    if(reduced){
+      T_BURST = 0.55; T_GATHER = 1.15; T_TREE = 2.75; T_OUT = 3.05;
+    }
+    t0 = performance.now();
+    running = true;
+    if(!rafId) rafId = requestAnimationFrame(loop);
+  }
+
+  go.addEventListener('click', begin);
+  cv.addEventListener('click', begin);   /* 点画面任意处也能开始 */
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){ e.preventDefault(); begin(); }
+  });
+
+  var rzTimer = 0;
+  window.addEventListener('resize', function(){
+    clearTimeout(rzTimer);
+    rzTimer = setTimeout(resize, 160);
+  });
+
+  resize();
+  /* 静止态：全黑，只有中间那颗按钮 */
+  ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
+
+  if(FREEZE > 0){
+    go.classList.add('off');
+    started = true; running = true;
+    t0 = performance.now();
+    if(!rafId) rafId = requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('pagehide', function(){ running = false; });
+})();
+</script>
+</body>
+</html>

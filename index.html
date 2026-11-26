@@ -308,13 +308,17 @@
     if(started) return;
     started = true;
     go.classList.add('off');
-    if(reduced){ location.href = 'tree.html?grown=1'; return; }
+    /* 就算系统开了"减少动态"，也照常把这场动画放完，只是节奏放快一点 */
+    if(reduced){
+      T_BURST = 0.55; T_GATHER = 1.15; T_TREE = 2.75; T_OUT = 3.05;
+    }
     t0 = performance.now();
     running = true;
     if(!rafId) rafId = requestAnimationFrame(loop);
   }
 
   go.addEventListener('click', begin);
+  cv.addEventListener('click', begin);   /* 点画面任意处也能开始 */
   window.addEventListener('keydown', function(e){
     if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){ e.preventDefault(); begin(); }
   });
