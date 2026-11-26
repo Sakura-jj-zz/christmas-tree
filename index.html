@@ -2,64 +2,40 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Merry Christmas</title>
-<meta name="description" content="一棵由光点绕成的树，站在紫红色的夜里。点一下画面，灯就亮了。">
-<meta name="theme-color" content="#070409">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070409'/%3E%3Cpath d='M16 8 L22 27 L10 27 Z' fill='%23B93C86'/%3E%3Ccircle cx='16' cy='7' r='2.4' fill='%23FFC9E2'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://miaoda.feishu.cn" crossorigin>
-<link rel="preconnect" href="https://sf3-scmcdn-cn.feishucdn.com" crossorigin>
-<link rel="preload" href="https://sf3-scmcdn-cn.feishucdn.com/obj/feishu-static/lark-miaoda-fonts/fonts/great-vibes/8b85738c0d80.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b050c'/%3E%3Ccircle cx='16' cy='9' r='2' fill='%23ffe0b0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Great+Vibes&display=swap">
-<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@300;400&display=swap">
 <style>
-  :root{
-    --bg-0:#070409;
-    --mag:#E0559C;
-    --pink:#FF9FCE;
-    --rose:#FFC9E2;
-    --ink:#F2E4EE;
-    --serif:"Noto Serif SC","Songti SC",Georgia,serif;
-    --script:"Great Vibes","Apple Chancery","Segoe Script","Bradley Hand",cursive;
-    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
-  }
-
-  *,*::before,*::after{box-sizing:border-box}
-  html,body{height:100%}
-  html{-webkit-text-size-adjust:100%}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
   body{
-    margin:0;
-    min-height:100vh;
-    min-height:100svh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#040207;
-    color:var(--ink);
-    font-family:var(--sans);
+    background:#050306;
+    color:#f3e2ee;
+    font-family:"Noto Serif SC","Songti SC","STSong",serif;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
     -webkit-font-smoothing:antialiased;
-    overflow:hidden;
-  }
-  ::selection{background:rgba(224,85,156,.35);color:#fff}
-
-  .grain{
-    position:fixed;inset:0;z-index:8;pointer-events:none;
-    opacity:.06;mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* 竖幅画面：9:16 */
-  .poster{
+  /* 16:9 宽幅舞台，四周留黑，和视频一样的横屏构图 */
+  .stage{
     position:relative;
-    width:min(100vw, 56.25svh);
-    height:min(100svh, 177.78vw);
+    width:min(100vw, 177.78vh);
+    height:min(56.25vw, 100vh);
     overflow:hidden;
+    background:#0a050b;
     container-type:inline-size;
-    background:
-      radial-gradient(96% 62% at 58% 18%, #2A1030 0%, #180C1D 44%, #0A0510 78%),
-      radial-gradient(120% 42% at 50% 100%, #2A0E28 0%, rgba(10,5,16,0) 70%),
-      var(--bg-0);
   }
+  .stage::after{
+    content:"";
+    position:absolute;inset:0;
+    background:radial-gradient(120% 90% at 35% 55%, rgba(90,30,70,.10), transparent 62%);
+    pointer-events:none;
+  }
+
   #tree{
     position:absolute;inset:0;
     width:100%;height:100%;
@@ -69,1039 +45,836 @@
     will-change:transform;
   }
 
-  .merry{
+  /* 右上文字组，右对齐，和视频里的位置一致 */
+  .words{
     position:absolute;
-    top:8%;
-    right:5%;
-    width:82%;
+    right:5.4cqw;
+    top:7.2cqw;
+    width:34cqw;
     text-align:right;
     z-index:3;
+    pointer-events:none;
+    user-select:none;
   }
-  .merry-en{
-    margin:0;
-    font-family:var(--script);
-    font-weight:400;
-    font-size:9.6cqw;
-    line-height:.96;
-    color:#FFB3D9;
+  .merry{
+    font-family:"Great Vibes","Snell Roundhand",cursive;
+    font-size:6.1cqw;
+    line-height:1;
+    color:#ffdff2;
     text-shadow:
-      0 0 .8cqw rgba(255,190,225,.95),
-      0 0 3.4cqw rgba(230,80,165,.75),
-      0 0 8cqw rgba(185,60,134,.5);
+      0 0 .4cqw rgba(255,166,214,.95),
+      0 0 1.3cqw rgba(255,110,188,.75),
+      0 0 3.2cqw rgba(214,60,150,.45);
+    white-space:nowrap;
   }
-  .merry-sub{
-    margin:2.4cqw 0 0;
-    font-size:2.1cqw;
+  .sub{
+    margin-top:.75cqw;
+    margin-right:.4cqw;
+    font-size:1.1cqw;
     letter-spacing:.1em;
-    color:rgba(255,190,225,.55);
+    color:rgba(255,226,240,.6);
+    text-shadow:0 0 .5cqw rgba(255,140,200,.5);
   }
-  .merry-cn{
-    margin:4.2cqw 0 0;
-    font-family:var(--serif);
-    font-size:4.2cqw;
-    letter-spacing:.3em;
-    color:#FFD9EC;
-    text-shadow:0 0 3cqw rgba(230,80,165,.65);
-    min-height:1.4em;
-    transition:opacity .5s ease;
+  .cn{
+    margin-top:4.2cqw;
+    display:flex;
+    flex-direction:column;
+    gap:1.15cqw;
+    align-items:flex-end;
   }
-  .merry-cn.swap{opacity:0}
-
+  .cn .ln{
+    font-size:1.92cqw;
+    letter-spacing:.24em;
+    color:#fdeaf6;
+    text-shadow:0 0 .6cqw rgba(255,150,205,.6), 0 0 1.8cqw rgba(200,60,140,.35);
+    white-space:nowrap;
+    /* 让文字左右不动，明确右对齐 */
+    text-align:right;
+  }
   .sign{
-    position:absolute;
-    left:0;right:0;bottom:4.6%;
-    margin:0;
-    text-align:center;
-    font-size:1.85cqw;
+    margin-top:6.4cqw;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:.6cqw;
+  }
+  .sign .rule{
+    width:7.4cqw;
+    height:1px;
+    background:linear-gradient(to right,transparent,rgba(255,222,238,.55));
+    margin-bottom:.3cqw;
+  }
+  .sign .who{
+    font-size:1.16cqw;
+    letter-spacing:.2em;
+    color:rgba(255,232,242,.78);
+    text-shadow:0 0 .4cqw rgba(255,150,200,.4);
+  }
+  .sign .when{
+    font-size:1.06cqw;
     letter-spacing:.16em;
-    color:rgba(255,205,232,.4);
-    z-index:3;
+    color:rgba(255,226,240,.5);
+    font-family:"Helvetica Neue",Arial,sans-serif;
   }
 
-  /* 编辑开关 */
-  .editor-bar{
+  /* 编辑按钮，落在画面外的左上下角，不干扰构图 */
+  #editBtn{
     position:fixed;
     left:14px;top:14px;
     z-index:9;
-    display:flex;gap:8px;
-  }
-  .edit-btn{
+    height:34px;
+    padding:0 14px;
+    min-width:44px;
     display:inline-flex;align-items:center;gap:6px;
-    min-height:40px;padding:0 12px;
-    background:rgba(18,9,21,.6);
-    border:1px solid rgba(255,159,206,.22);
-    border-radius:2px;
-    color:rgba(255,200,230,.72);
-    font-family:var(--sans);font-size:.74rem;
+    border-radius:999px;
+    border:1px solid rgba(255,190,225,.26);
+    background:rgba(30,10,26,.55);
+    backdrop-filter:blur(10px);
+    color:rgba(255,225,240,.8);
+    font-size:12px;
+    font-family:inherit;
+    letter-spacing:.06em;
     cursor:pointer;
-    transition:background .25s ease,border-color .25s ease;
+    transition:.2s;
   }
-  .edit-btn:hover{background:rgba(40,16,48,.9);border-color:rgba(255,159,206,.6)}
-  .edit-btn svg{width:13px;height:13px;flex:0 0 auto}
-  body.editing .edit-btn{
-    background:rgba(224,85,156,.2);
-    border-color:rgba(255,159,206,.85);
-    color:#fff;
+  #editBtn:hover{border-color:rgba(255,190,225,.5);color:#ffe6f3;}
+  #editBtn .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:rgba(255,140,198,.9);
+    box-shadow:0 0 8px rgba(255,110,180,.9);
   }
+  body.editing #editBtn{border-color:rgba(255,210,235,.75);color:#fff;}
 
-  [data-edit]{transition:outline-color .2s ease}
-  body.editing [data-edit]{
-    outline:1px dashed rgba(255,159,206,.45);
-    outline-offset:3px;
+  [contenteditable="true"]{
+    outline:none;
     cursor:text;
+    pointer-events:auto;
   }
-  body.editing [data-edit]:focus{outline:1px solid rgba(255,159,206,.9)}
-
-  .toast{
-    position:fixed;
-    left:50%;bottom:9%;
-    transform:translate(-50%,10px);
-    padding:9px 16px;
-    background:rgba(34,16,42,.92);
-    border:1px solid rgba(255,159,206,.34);
+  [contenteditable="true"]:focus{
+    box-shadow:0 0 0 1px rgba(255,190,228,.4), 0 0 14px rgba(255,120,190,.25);
     border-radius:2px;
-    font-size:.78rem;
-    color:#FFD3E8;
-    opacity:0;
-    pointer-events:none;
-    z-index:10;
-    transition:opacity .28s ease,transform .28s cubic-bezier(.22,1,.36,1);
   }
-  .toast.on{opacity:1;transform:translate(-50%,0)}
 
-  :focus-visible{outline:2px solid rgba(255,159,206,.7);outline-offset:3px}
+  .grain{
+    position:fixed;inset:0;
+    z-index:5;
+    pointer-events:none;
+    opacity:.055;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-  .merry,.sign{animation:fadeIn 1.2s ease .15s both}
-  @media (prefers-reduced-motion: reduce){
-    .merry,.sign{animation:none}
+  @media (max-width:520px){
+    #editBtn{height:32px;font-size:11px;}
   }
 </style>
 </head>
 <body>
-<div class="grain" aria-hidden="true"></div>
 
-<div class="poster" id="poster">
-  <canvas id="tree" aria-hidden="true"></canvas>
+<div class="stage" id="stage">
+  <canvas id="tree"></canvas>
 
-  <div class="merry">
-    <p class="merry-en" data-edit="merry-en">Merry Christmas</p>
-    <p class="merry-sub" data-edit="merry-sub">写给一个人 · 二〇二六</p>
-    <p class="merry-cn" id="merryCn" data-edit="merry-cn">平安夜</p>
+  <div class="words" id="words">
+    <div class="merry" id="t-merry">Merry Christmas</div>
+    <div class="sub" id="t-sub">愿所有的美好都如约而至 · 2026</div>
+    <div class="cn" id="t-cn">
+      <div class="ln">亲爱的你</div>
+      <div class="ln">圣诞快乐</div>
+      <div class="ln">愿所有的美好都如约而至</div>
+    </div>
+    <div class="sign" id="t-sign">
+      <div class="rule"></div>
+      <div class="who">爱你的我</div>
+      <div class="when">2026.12.25</div>
+    </div>
   </div>
-
-  <p class="sign" data-edit="sign">二〇二六 · 留一盏灯给你</p>
 </div>
 
-<div class="editor-bar">
-  <button type="button" class="edit-btn" id="editBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
-    <span id="editBtnLabel">编辑文字</span>
-  </button>
-</div>
-
-<div class="toast" id="toast" role="status">灯都亮了</div>
-<input type="file" id="fileInput" accept="image/*" hidden>
+<button id="editBtn" type="button"><span class="dot"></span>编辑文字</button>
+<div class="grain"></div>
 
 <script>
 (function(){
-  'use strict';
+"use strict";
 
-  var reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var reduce = reduceMQ.matches;
+var cvs = document.getElementById('tree');
+var ctx = cvs.getContext('2d', {alpha:true});
+var stage = document.getElementById('stage');
+var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var editing = false;
 
-  /* ================= 首屏：紫红光点圣诞树 ================= */
-  var cvs = document.getElementById('tree');
-  var ctx = cvs && cvs.getContext ? cvs.getContext('2d') : null;
+var W = 0, H = 0, cx = 0, groundY = 0, topY = 0, treeH = 0, baseR = 0, cy = 0;
+var stars = [], snow = [], bursts = [], spiral = [], phantoms = [];
+var fog = null, fogCtx = null;
 
-  var W = 0, H = 0, DPR = 1;
-  var cx = 0, cy = 0, treeH = 0, baseR = 0, persp = 0, desk = false;
-  var pts = [], flakes = [], sky = [], ground = [], wishLights = [];
-  var sprites = [], snowSoft = null;
-  var fog = null, fogW = 0, fogH = 0;
-  var ring = null, ringW = 0, ringH = 0, ringOx = 0, ringOy = 0;
-  var rotSmooth = 0, rotTarget = 0, rotAuto = 0;
-  var t0 = performance.now(), lastNow = performance.now();
-  var running = true, rafId = null;
-  var igniteAt = -1;
+/* ---------- 小工具 ---------- */
+function rnd(a,b){ return a + Math.random()*(b-a); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function easeIO(t){ return t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
 
-  var COLORS = [
-    [255, 240, 250],
-    [255, 150, 205],
-    [226, 74, 158],
-    [250, 205, 155]
-  ];
+/* ---------- 光点贴图（离屏预渲染，避免每帧建渐变） ---------- */
+function makeSprite(rgb, halo){
+  var S = 96;
+  var c = document.createElement('canvas');
+  c.width = c.height = S;
+  var g = c.getContext('2d');
+  var grad = g.createRadialGradient(S/2,S/2,0,S/2,S/2,S/2);
+  grad.addColorStop(0,   'rgba('+rgb+',1)');
+  grad.addColorStop(.14, 'rgba('+rgb+',.92)');
+  grad.addColorStop(.34, 'rgba('+rgb+',.42)');
+  grad.addColorStop(.62, 'rgba('+rgb+','+(halo||0.10)+')');
+  grad.addColorStop(1,   'rgba('+rgb+',0)');
+  g.fillStyle = grad;
+  g.fillRect(0,0,S,S);
+  return c;
+}
+var SPC = {
+  gold:   makeSprite('255,231,190', .16),
+  goldHi: makeSprite('255,247,226', .20),
+  pink:   makeSprite('240,150,205', .14),
+  mauve:  makeSprite('204,110,170', .10),
+  white:  makeSprite('255,255,255', .12),
+  cyan:   makeSprite('205,240,255', .10)
+};
 
-  function buildSprites(){
-    sprites = COLORS.map(function(c){
-      var s = document.createElement('canvas');
-      s.width = s.height = 64;
-      var g = s.getContext('2d');
-      var grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-      grd.addColorStop(0, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',1)');
-      grd.addColorStop(0.2, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0.78)');
-      grd.addColorStop(0.52, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0.16)');
-      grd.addColorStop(1, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0)');
-      g.fillStyle = grd;
-      g.fillRect(0, 0, 64, 64);
-      return s;
+/* ---------- 尺寸与几何 ---------- */
+function measure(){
+  W = stage.clientWidth; H = stage.clientHeight;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cvs.width = Math.round(W*dpr);
+  cvs.height = Math.round(H*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  /* 和视频一致：树偏左，树顶在画面上部，树脚压在地平线偏下 */
+  cx = W*0.355;
+  topY = H*0.135;
+  groundY = H*0.815;
+  treeH = groundY - topY;
+  baseR = treeH*0.186;
+  cy = (topY + groundY)/2;
+}
+
+/* ---------- 星空 ---------- */
+function buildStars(){
+  stars = [];
+  var n = Math.round(clamp(W*H/1250, 500, 1500));
+  for(var i=0;i<n;i++){
+    stars.push({
+      x: Math.random()*W,
+      y: Math.random()*H,
+      r: rnd(.35,1.5),
+      a: rnd(.16,.92),
+      ph: Math.random()*6.283,
+      sp: rnd(.4,1.5),
+      big: Math.random()<.06
     });
+  }
+}
 
-    snowSoft = document.createElement('canvas');
-    snowSoft.width = snowSoft.height = 48;
-    var sg = snowSoft.getContext('2d');
-    var sgr = sg.createRadialGradient(24, 24, 0, 24, 24, 24);
-    sgr.addColorStop(0, 'rgba(255,246,252,0.95)');
-    sgr.addColorStop(0.28, 'rgba(255,214,235,0.5)');
-    sgr.addColorStop(1, 'rgba(255,214,235,0)');
-    sg.fillStyle = sgr;
-    sg.fillRect(0, 0, 48, 48);
+/* ---------- 飘落的雪与星尘 ---------- */
+function buildSnow(){
+  snow = [];
+  var n = Math.round(clamp(W*H/3400, 90, 260));
+  for(var i=0;i<n;i++){
+    snow.push({
+      x: Math.random()*W,
+      y: Math.random()*H,
+      r: rnd(.6,2.3),
+      v: rnd(.35,1.15),
+      dx: rnd(-.5,.5),
+      ph: Math.random()*6.283,
+      a: rnd(.2,.75)
+    });
+  }
+}
+
+/* ---------- 金色螺旋骨架 ---------- */
+/* 视频里是十几圈横向收窄的金色环线，由一条连续的螺旋缠绕而成 */
+function buildSpiral(){
+  spiral = [];
+  var turns = 11.5;
+  var perTurn = 152;
+  var total = Math.round(turns*perTurn);
+  for(var i=0;i<total;i++){
+    var u = i/total;                 /* 0 顶 → 1 底 */
+    var t = Math.pow(u, .82);        /* 顶部略稀疏 */
+    var ang = i/perTurn * Math.PI*2 + .6;
+    var r = baseR * (0.05 + 0.95*Math.pow(t, .88));
+    var y = topY + treeH * t;
+    /* 透视：环越靠下越扁，半径越靠近观察者 */
+    var pz = Math.sin(ang);          /* -1 后 → 1 前 */
+    var eY = 0.34 * (0.55 + 0.45*t);
+    var rad = r * (0.72 + 0.28*(pz+1)/2);
+    var px = cx + Math.cos(ang) * rad;
+    var py = y + pz * baseR * eY * (0.55 + 0.45*t) * 0.9;
+    var depth = (pz+1)/2;            /* 0 后 → 1 前 */
+    spiral.push({
+      x: px, y: py,
+      t: t, depth: depth,
+      sz: rnd(.7,1.5) * (0.55 + 0.5*t),
+      hot: Math.random() < .16,
+      ph: Math.random()*6.283,
+      sp: rnd(.7,2.2),
+      warm: Math.random() < .5
+    });
+  }
+}
+
+/* ---------- 粉紫粒子云（树的身体） ---------- */
+function buildPhantoms(){
+  phantoms = [];
+  var n = Math.round(clamp(W*H/380, 1600, 5200));
+  for(var i=0;i<n;i++){
+    var t = Math.pow(Math.random(), 1.16);        /* 底部更密 */
+    var ang = Math.random()*Math.PI*2;
+    var rr = baseR * (0.04 + 0.96*Math.pow(t, .88)) * Math.pow(Math.random(), .5);
+    var pz = Math.sin(ang);
+    var eY = 0.34 * (0.55 + 0.45*t);
+    phantoms.push({
+      x: cx + Math.cos(ang)*rr,
+      y: topY + treeH*t + pz*rr*eY*0.9,
+      r: rnd(.6,3.0),
+      a: rnd(.10,.52),
+      ph: Math.random()*6.283,
+      sp: rnd(.4,1.6)
+    });
+  }
+}
+
+/* ---------- 烟火星尘团 ---------- */
+function buildBursts(){
+  bursts = [];
+  var spots = [
+    {x:.16,y:.13,s:1.0},{x:.62,y:.10,s:.85},{x:.30,y:.22,s:.7},{x:.08,y:.34,s:.55}
+  ];
+  for(var i=0;i<spots.length;i++){
+    var s = spots[i];
+    var pts = [];
+    var n = 190;
+    for(var k=0;k<n;k++){
+      var ang = Math.random()*Math.PI*2;
+      var rr = Math.pow(Math.random(), .62) * 46;
+      pts.push({ang:ang, rr:rr, sz:rnd(.5,1.8), a:rnd(.25,.9)});
+    }
+    bursts.push({
+      ox: W*s.x, oy: H*s.y, sc: s.s,
+      pts: pts,
+      ph: Math.random()*10,
+      sp: rnd(.055,.085)
+    });
+  }
+}
+
+/* ---------- 雾层预渲染 ---------- */
+function buildFog(){
+  if(!fog){
+    fog = document.createElement('canvas');
+    fogCtx = fog.getContext('2d');
+  }
+  var fw = Math.round(baseR*3.2), fh = Math.round(treeH*1.05);
+  fog.width = Math.max(2, fw); fog.height = Math.max(2, fh);
+  fogCtx.clearRect(0,0,fw,fh);
+
+  var fx = fw/2;
+  var fTop = fh*0.02, fBot = fh*0.952;
+
+  /* 锥形底光：水平方向柔化，垂直方向分段，避免出现硬边 */
+  var segs = 72;
+  for(var sgi=0; sgi<segs; sgi++){
+    var tt = sgi/(segs-1);
+    var y0 = fTop + (fBot-fTop)*tt;
+    var y1 = fTop + (fBot-fTop)*((sgi+1)/segs);
+    var halfW = (fw*0.5) * (0.03 + 0.97*Math.pow(tt, .88));
+    var la = 0.018 + 0.085*Math.pow(tt, 1.35);
+    var lg = fogCtx.createLinearGradient(fx-halfW, 0, fx+halfW, 0);
+    lg.addColorStop(0,   'rgba(255,178,220,0)');
+    lg.addColorStop(.45, 'rgba(250,180,222,'+la+')');
+    lg.addColorStop(.55, 'rgba(250,180,222,'+la+')');
+    lg.addColorStop(1,   'rgba(255,178,220,0)');
+    fogCtx.fillStyle = lg;
+    fogCtx.fillRect(fx-halfW, y0, halfW*2, Math.max(1, y1-y0+1));
   }
 
-  function measure(){
-    if(!cvs) return;
-    var r = cvs.getBoundingClientRect();
-    W = Math.max(1, Math.round(r.width));
-    H = Math.max(1, Math.round(r.height));
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    cvs.width = Math.round(W * DPR);
-    cvs.height = Math.round(H * DPR);
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-
-    desk = false;
-    treeH = Math.min(H * 0.6, 780);
-    cx = W * 0.5;
-    cy = H * 0.865 - treeH * 0.5;
-    baseR = treeH * 0.155;
-    persp = baseR * 2.4;
+  var count = Math.round(clamp(fw*fh/26, 900, 2600));
+  for(var i=0;i<count;i++){
+    var t = Math.pow(Math.random(), 1.1);
+    var y = fTop + (fBot-fTop)*t;
+    var halfMax = (fw*0.5) * (1-t*0.95);
+    var half = halfMax * Math.sqrt(Math.random());
+    var x = fx + (Math.random()<.5?-half:half);
+    var v = 1 - Math.abs(x-fx)/Math.max(1,halfMax);
+    var a = (0.030 + 0.085*v) * (0.5+0.5*Math.random());
+    var g2 = Math.round(196 + 30*v);
+    fogCtx.fillStyle = 'rgba('+g2+',110,168,'+clamp(a,0,.34)+')';
+    var sz = 1 + Math.random()*1.6;
+    fogCtx.fillRect(x, y, sz, sz);
   }
+}
+/* ---------- 绘制：天空 / 远山 / 地面 ---------- */
+var skyGrad = null;
 
-  /* 树体雾：让锥形立起来的那层洋红薄雾 */
-  function buildFog(){
-    fogW = Math.max(60, Math.round(baseR * 2.6));
-    fogH = Math.max(120, Math.round(treeH));
-    if(!fog) fog = document.createElement('canvas');
-    fog.width = fogW;
-    fog.height = fogH;
-    var g = fog.getContext('2d');
-    g.clearRect(0, 0, fogW, fogH);
+function buildSky(){
+  skyGrad = ctx.createLinearGradient(0,0,0,H);
+  skyGrad.addColorStop(0,   '#060308');
+  skyGrad.addColorStop(.26, '#13081a');
+  skyGrad.addColorStop(.46, '#2a1029');
+  skyGrad.addColorStop(.555,'#31132c');
+  skyGrad.addColorStop(.60, '#180a18');
+  skyGrad.addColorStop(.78, '#0b0510');
+  skyGrad.addColorStop(1,   '#070409');
+}
 
-    var ccx = fogW * 0.5;
-    var count = Math.round(fogW * fogH / 18);
-    if(count > 20000) count = 20000;
+function drawSky(){
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0,0,W,H);
+}
 
-    for(var i = 0; i < count; i++){
-      var v = Math.random();
-      var maxR = fogW * 0.5 * Math.pow(v, 0.9);
-      var dx = (Math.random() * 2 - 1) * maxR;
-      var a = (0.018 + Math.random() * 0.05) * (0.34 + v * 0.9);
-      var warm = Math.random();
-      if(warm > 0.9){
-        g.fillStyle = 'rgba(250,205,155,' + a.toFixed(3) + ')';
-      }else if(warm > 0.6){
-        g.fillStyle = 'rgba(255,150,205,' + a.toFixed(3) + ')';
-      }else{
-        g.fillStyle = 'rgba(200,60,140,' + a.toFixed(3) + ')';
-      }
-      var sz = 1 + Math.random() * 1.2;
-      g.fillRect(ccx + dx, v * fogH, sz, sz);
+function ridgeLine(yBase, amp, seed){
+  ctx.beginPath();
+  ctx.moveTo(-2, H+2);
+  ctx.lineTo(-2, yBase);
+  var step = Math.max(10, W/64);
+  for(var x=0; x<=W+step; x+=step){
+    var k = x/W;
+    var y = yBase
+      - Math.sin(k*5.4 + seed)*amp
+      - Math.sin(k*12.1 + seed*2.3)*amp*0.38
+      - Math.sin(k*24.6 + seed*3.7)*amp*0.16;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W+2, H+2);
+  ctx.closePath();
+}
+
+function drawRidge(){
+  ridgeLine(H*0.552, H*0.020, 1.2);
+  ctx.fillStyle = 'rgba(62,24,56,.55)';
+  ctx.fill();
+
+  ridgeLine(H*0.588, H*0.015, 3.4);
+  ctx.fillStyle = 'rgba(30,11,26,.72)';
+  ctx.fill();
+}
+
+function drawGround(){
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.save();
+  ctx.translate(cx, groundY + baseR*0.10);
+  ctx.scale(1, .28);
+  var R = baseR*3.6;
+  var g = ctx.createRadialGradient(0,0,0,0,0,R);
+  g.addColorStop(0,   'rgba(255,206,232,.62)');
+  g.addColorStop(.18, 'rgba(244,152,204,.36)');
+  g.addColorStop(.42, 'rgba(196,90,152,.16)');
+  g.addColorStop(.72, 'rgba(140,48,110,.05)');
+  g.addColorStop(1,   'rgba(110,30,90,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(0,0,R,0,6.2832); ctx.fill();
+  ctx.restore();
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 绘制：树的雾与粒子层 ---------- */
+function drawFogLayer(){
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = .92;
+  var fw = fog.width, fh = fog.height;
+  ctx.drawImage(fog, cx - fw/2, topY - fh*0.02, fw, fh);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function drawPhantoms(t){
+  ctx.globalCompositeOperation = 'lighter';
+  var n = phantoms.length;
+  for(var i=0;i<n;i++){
+    var p = phantoms[i];
+    var fl = reduce ? .8 : (0.62 + 0.38*Math.sin(t*p.sp + p.ph));
+    ctx.globalAlpha = p.a * fl * (igniteA);
+    var s = p.r*2.6;
+    ctx.drawImage(SPC.pink, p.x - s/2, p.y - s/2, s, s);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 绘制：金色螺旋 ---------- */
+function drawSpiral(t){
+  ctx.globalCompositeOperation = 'lighter';
+  var n = spiral.length;
+  for(var i=0;i<n;i++){
+    var p = spiral[i];
+    var fl = reduce ? .9 : (0.55 + 0.45*Math.sin(t*p.sp + p.ph));
+    var a = (0.22 + 0.62*p.depth) * fl * (0.55 + 0.45*igniteA);
+    var s = p.sz * (p.hot ? 4.6 : 3.1);
+    ctx.globalAlpha = clamp(a, 0, .95);
+    ctx.drawImage(p.warm ? SPC.gold : SPC.goldHi, p.x - s/2, p.y - s/2, s, s);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 绘制：树脚光环 ---------- */
+function drawRing(t){
+  ctx.globalCompositeOperation = 'lighter';
+  var rx = baseR*1.34, ry = rx*0.27;
+  var loops = [1.0, .855, 1.075];
+  for(var l=0;l<loops.length;l++){
+    var k = loops[l];
+    var count = 150;
+    for(var i=0;i<count;i++){
+      var u = i/count;
+      var ang = u*6.2832;
+      var z = Math.sin(ang);               /* 前后深度 */
+      var x = cx + Math.cos(ang)*rx*k;
+      var y = groundY + baseR*0.10 + z*ry*k;
+      var a = (0.10 + 0.55*((z+1)/2)) * (0.72 + 0.28*Math.sin(t*1.4 + u*9));
+      var s = 2.6 + ((z+1)/2)*2.4;
+      ctx.globalAlpha = clamp(a*(0.5+0.5*igniteA), 0, .9);
+      ctx.drawImage(SPC.gold, x - s/2, y - s/2, s, s);
     }
   }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
 
-  /* 树脚的光环：三条压扁的椭圆轨道 */
-  function buildRing(){
-    var rx = baseR * 1.34;
-    var ry = rx * 0.34;
-    ringW = Math.max(60, Math.ceil(rx * 2 + 60));
-    ringH = Math.max(40, Math.ceil(ry * 2 + 40));
-    ringOx = ringW * 0.5;
-    ringOy = ringH * 0.5;
-    if(!ring) ring = document.createElement('canvas');
-    ring.width = ringW;
-    ring.height = ringH;
-    var g = ring.getContext('2d');
-    g.clearRect(0, 0, ringW, ringH);
+/* ---------- 绘制：树顶星芒 ---------- */
+function drawFlare(t){
+  var x = cx, y = topY - treeH*0.012;
+  var pulse = reduce ? 1 : (0.86 + 0.14*Math.sin(t*1.7));
+  var base = Math.max(W,H)*0.0075 * pulse;
 
-    var loops = [
-      { k: 1.0, n: 1700, in: 0.5 },
-      { k: 0.86, n: 900, in: 0.42 },
-      { k: 1.09, n: 700, in: 0.3 }
-    ];
+  ctx.globalCompositeOperation = 'lighter';
 
-    for(var l = 0; l < loops.length; l++){
-      var lp = loops[l];
-      var lrx = rx * lp.k, lry = ry * lp.k;
-      for(var j = 0; j < lp.n; j++){
-        var th = j / lp.n * Math.PI * 2;
-        var near = 0.5 + 0.5 * Math.sin(th);
-        var x = ringOx + Math.cos(th) * lrx + (Math.random() - 0.5) * rx * 0.022;
-        var y = ringOy + Math.sin(th) * lry + (Math.random() - 0.5) * ry * 0.16;
-        var a = lp.in * (0.25 + 0.75 * near) * (0.2 + Math.random() * 0.55);
-        var c = Math.random();
-        if(c > 0.82){
-          g.fillStyle = 'rgba(250,205,155,' + a.toFixed(3) + ')';
-        }else if(c > 0.5){
-          g.fillStyle = 'rgba(255,180,220,' + a.toFixed(3) + ')';
-        }else{
-          g.fillStyle = 'rgba(255,240,250,' + a.toFixed(3) + ')';
-        }
-        var sz = 0.7 + Math.random() * 1.7;
-        g.fillRect(x, y, sz, sz);
-      }
-    }
-  }
+  /* 中心核 */
+  var s = base*4.6;
+  ctx.globalAlpha = .95;
+  ctx.drawImage(SPC.goldHi, x - s/2, y - s/2, s, s);
 
-  function buildTree(){
-    pts = [];
-    var n = W < 760 ? 7200 : 8200;
-    var turns = Math.PI * 2 * 17;
-
-    for(var i = 0; i < n; i++){
-      var t = Math.pow(i / n, 0.9);
-      var a = t * turns + (Math.random() - 0.5) * 1.5;
-      var rr = baseR * Math.pow(1 - t, 0.98) * (0.84 + Math.random() * 0.24);
-      var pick = Math.random();
-      var kind = 2;
-      if(pick > 0.88) kind = 3;
-      else if(pick > 0.58) kind = 0;
-      else if(pick > 0.26) kind = 1;
-      pts.push({
-        t: t,
-        a: a,
-        r: rr,
-        sz: 0.5 + Math.random() * 0.95,
-        ph: Math.random() * Math.PI * 2,
-        sp: 0.0008 + Math.random() * 0.0034,
-        kind: kind,
-        hot: Math.random() > 0.86,
-        kA: kind === 0 ? 1.16 : (kind === 3 ? 1.06 : (kind === 1 ? 1 : 0.9))
-      });
-    }
-
-    sky = [];
-    var sn = Math.round(Math.min(120, W / 7));
-    for(var k = 0; k < sn; k++){
-      sky.push({
-        x: Math.random() * W,
-        y: Math.random() * H * 0.8,
-        a: 0.05 + Math.random() * 0.2,
-        ph: Math.random() * Math.PI * 2
-      });
-    }
-
-    /* 地面星尘：撒在光环里 */
-    ground = [];
-    var gn = Math.round(Math.min(86, baseR * 0.8));
-    for(var q = 0; q < gn; q++){
-      var u = Math.random() * 2 - 1;
-      ground.push({
-        x: cx + u * baseR * 1.5,
-        y: cy + treeH * 0.5 + Math.random() * baseR * 0.32 - Math.abs(u) * 10,
-        r: 0.35 + Math.random() * 1,
-        a: 0.12 + Math.random() * 0.36,
-        ph: Math.random() * Math.PI * 2,
-        sp: 0.0007 + Math.random() * 0.0032,
-        warm: Math.random() > 0.5
-      });
-    }
-
-    flakes = [];
-    var fn = Math.min(560, Math.round(W * H / 2300));
-    for(var j = 0; j < fn; j++){
-      flakes.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: 0.35 + Math.random() * 1.5,
-        vy: 0.55 + Math.random() * 1.35,
-        vx: (Math.random() - 0.5) * 0.22,
-        ph: Math.random() * Math.PI * 2,
-        a: 0.16 + Math.random() * 0.6,
-        soft: Math.random() > 0.76,
-        warm: Math.random() > 0.9
-      });
-    }
-  }
-
-  function igniteBoost(now){
-    if(igniteAt < 0) return 0;
-    var dt = now - igniteAt;
-    if(dt < 0) return 0;
-    var hold = 1 - Math.max(0, (dt - 1300) / 1500);
-    if(hold <= 0) return 0;
-    return Math.max(0, Math.min(1, hold));
-  }
-
-  function drawSky(now){
-    for(var i = 0; i < sky.length; i++){
-      var s = sky[i];
-      var tw = reduce ? 1 : 0.7 + 0.3 * Math.sin(now * 0.0009 + s.ph);
-      ctx.fillStyle = 'rgba(255,225,242,' + (s.a * tw).toFixed(3) + ')';
-      ctx.fillRect(s.x, s.y, 1, 1);
-    }
-  }
-
-  function drawRidge(){
-    var layers = [
-      { y: H * 0.70, amp: H * 0.052, col: 'rgba(56,22,60,0.17)', ph: 0.5 },
-      { y: H * 0.81, amp: H * 0.038, col: 'rgba(22,9,26,0.36)', ph: 2.1 }
-    ];
-    for(var l = 0; l < layers.length; l++){
-      var ly = layers[l];
-      ctx.beginPath();
-      ctx.moveTo(0, ly.y);
-      var steps = 46;
-      for(var x = 0; x <= steps; x++){
-        var px = x / steps * W;
-        var py = ly.y
-          + Math.sin(px / W * 4.3 + ly.ph) * ly.amp
-          + Math.sin(px / W * 9.4 + ly.ph * 2) * ly.amp * 0.42;
-        ctx.lineTo(px, py);
-      }
-      ctx.lineTo(W, H);
-      ctx.lineTo(0, H);
-      ctx.closePath();
-      ctx.fillStyle = ly.col;
-      ctx.fill();
-    }
-  }
-
-  function drawFog(){
-    if(!fog || !fogW) return;
-    ctx.globalAlpha = 1;
-    ctx.drawImage(fog, cx - fogW * 0.5, cy - treeH * 0.5, fogW, treeH);
-  }
-
-  function drawGroundPool(){
-    var gy = cy + treeH * 0.5;
-    var rad = baseR * 2.2;
+  /* 四道长芒 */
+  var lens = [1.0, .82, .62, .48, .36];
+  for(var i=0;i<4;i++){
+    var ang = i*Math.PI/2;
+    var len = Math.max(W,H)*0.10 * lens[i%lens.length] * pulse;
+    var wdt = base*0.9;
     ctx.save();
-    ctx.translate(cx, gy);
-    ctx.scale(1, 0.33);
-    var grd = ctx.createRadialGradient(0, 0, 0, 0, 0, rad);
-    grd.addColorStop(0, 'rgba(226,74,158,0.16)');
-    grd.addColorStop(0.45, 'rgba(160,50,130,0.07)');
-    grd.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grd;
+    ctx.translate(x,y);
+    ctx.rotate(ang);
+    var lg = ctx.createLinearGradient(0,0,0,-len);
+    lg.addColorStop(0,   'rgba(255,246,228,.95)');
+    lg.addColorStop(.22, 'rgba(255,224,186,.55)');
+    lg.addColorStop(.62, 'rgba(255,180,220,.16)');
+    lg.addColorStop(1,   'rgba(255,160,210,0)');
+    ctx.fillStyle = lg;
     ctx.beginPath();
-    ctx.arc(0, 0, rad, 0, Math.PI * 2);
+    ctx.moveTo(0, -len);
+    ctx.lineTo(wdt*0.5, 0);
+    ctx.lineTo(-wdt*0.5, 0);
+    ctx.closePath();
     ctx.fill();
     ctx.restore();
   }
 
-  function drawGroundStars(now){
-    var boost = igniteBoost(now);
-    ctx.globalCompositeOperation = 'lighter';
-    for(var i = 0; i < ground.length; i++){
-      var g = ground[i];
-      var tw = reduce ? 0.85 : 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(now * g.sp + g.ph));
-      var a = g.a * tw * (1 + boost * 1.3);
-      if(a > 1) a = 1;
-      var size = g.r * 9 * (1 + boost * 0.6);
-      ctx.globalAlpha = a;
-      ctx.drawImage(sprites[g.warm ? 3 : 1], g.x - size * 0.5, g.y - size * 0.5, size, size);
+  /* 斜向短芒 */
+  for(var j=0;j<4;j++){
+    var a2 = Math.PI/4 + j*Math.PI/2;
+    var l2 = Math.max(W,H)*0.038 * pulse;
+    ctx.save();
+    ctx.translate(x,y); ctx.rotate(a2);
+    var lg2 = ctx.createLinearGradient(0,0,0,-l2);
+    lg2.addColorStop(0,'rgba(255,240,230,.7)');
+    lg2.addColorStop(1,'rgba(255,190,225,0)');
+    ctx.fillStyle = lg2;
+    ctx.beginPath();
+    ctx.moveTo(0,-l2); ctx.lineTo(base*.35,0); ctx.lineTo(-base*.35,0);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  /* 柔和光晕 */
+  var hg = ctx.createRadialGradient(x,y,0,x,y,base*11);
+  hg.addColorStop(0,'rgba(255,226,240,.20)');
+  hg.addColorStop(.4,'rgba(255,170,215,.07)');
+  hg.addColorStop(1,'rgba(220,90,170,0)');
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = hg;
+  ctx.beginPath(); ctx.arc(x,y,base*11,0,6.2832); ctx.fill();
+
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 绘制：烟火星尘团 ---------- */
+function drawBursts(t){
+  ctx.globalCompositeOperation = 'lighter';
+  for(var b=0;b<bursts.length;b++){
+    var bu = bursts[b];
+    var ph = ((t*bu.sp + bu.ph) % 1 + 1) % 1;
+    var grow = 0.35 + ph*1.0;
+    var fade = Math.pow(1-ph, 1.5);
+    if(fade < .03) continue;
+    for(var i=0;i<bu.pts.length;i++){
+      var p = bu.pts[i];
+      var rr = p.rr * grow * bu.sc * (W/1200);
+      var x = bu.ox + Math.cos(p.ang)*rr;
+      var y = bu.oy + Math.sin(p.ang)*rr*0.62 + rr*0.06;
+      var a = p.a * fade * 0.72;
+      var s = p.sz*2.8;
+      ctx.globalAlpha = clamp(a,0,.5);
+      ctx.drawImage(SPC.gold, x-s/2, y-s/2, s, s);
     }
-    ctx.globalAlpha = 1;
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 绘制：背景星与飘落 ---------- */
+function drawStars(t){
+  ctx.globalCompositeOperation = 'lighter';
+  for(var i=0;i<stars.length;i++){
+    var s = stars[i];
+    var fl = reduce ? 1 : (0.55 + 0.45*Math.sin(t*s.sp + s.ph));
+    ctx.globalAlpha = s.a * fl * 0.85;
+    var sz = s.big ? s.r*3.4 : s.r*2.0;
+    ctx.drawImage(SPC.white, s.x - sz/2, s.y - sz/2, sz, sz);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function drawSnow(t){
+  ctx.globalCompositeOperation = 'lighter';
+  for(var i=0;i<snow.length;i++){
+    var s = snow[i];
+    var fl = reduce ? .9 : (0.7 + 0.3*Math.sin(t*1.2 + s.ph));
+    ctx.globalAlpha = s.a * fl * .55;
+    var sz = s.r*2.6;
+    ctx.drawImage(SPC.white, s.x - sz/2, s.y - sz/2, sz, sz);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---------- 点亮（点击触发的自下而上扫光） ---------- */
+var igniteStart = -99, igniteA = 1;
+function ignite(){
+  igniteStart = now();
+}
+
+/* ---------- 主循环 ---------- */
+var t0 = 0, raf = 0, running = true;
+function now(){ return (performance.now() - t0) / 1000; }
+
+function draw(){
+  var t = now();
+
+  /* 点亮扫光的进度 */
+  var ip = (t - igniteStart) / 2.4;
+  if(ip >= 0 && ip <= 1){
+    igniteA = 1 + Math.sin(Math.min(1, ip)*Math.PI) * 1.6;
+  } else {
+    igniteA = 1;
+  }
+
+  ctx.clearRect(0,0,W,H);
+  drawSky();
+  drawRidge();
+  drawStars(t);
+  drawGround();
+  drawFogLayer();
+  drawPhantoms(t);
+  drawSpiral(t);
+  drawRing(t);
+  drawBursts(t);
+  drawFlare(t);
+  drawSnow(t);
+
+  /* 扫光：从树顶到树脚的一道高亮，点亮瞬间出现 */
+  if(ip >= 0 && ip <= 1){
+    var sy = topY + treeH * ip;
+    ctx.globalCompositeOperation = 'lighter';
+    var lg = ctx.createLinearGradient(0, sy-H*0.10, 0, sy+H*0.05);
+    lg.addColorStop(0,'rgba(255,220,240,0)');
+    lg.addColorStop(.72,'rgba(255,236,248,'+(0.30*Math.sin(ip*Math.PI))+')');
+    lg.addColorStop(1,'rgba(255,180,220,0)');
+    ctx.fillStyle = lg;
+    ctx.fillRect(cx-baseR*1.7, sy-H*0.10, baseR*3.4, H*0.15);
     ctx.globalCompositeOperation = 'source-over';
   }
+}
 
-  function drawRings(now){
-    if(!ring) return;
-    var boost = igniteBoost(now);
-    var gy = cy + treeH * 0.5;
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = Math.min(1, 0.72 + boost * 0.35);
-    ctx.drawImage(ring, cx - ringOx, gy - ringOy);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
+function loop(){
+  if(!running) return;
+  draw();
+  raf = requestAnimationFrame(loop);
+}
+
+/* 雪与星点的漂移放在时间驱动的位移里，避免逐帧累加误差 */
+function tick(ms){
+  var dt = Math.min(64, ms)/1000;
+  for(var i=0;i<snow.length;i++){
+    var s = snow[i];
+    s.y += s.v * dt * 26;
+    s.x += Math.sin(now()*0.5 + s.ph) * 3.2 * dt;
+    if(s.y > H+10){ s.y = -10; s.x = Math.random()*W; }
+    if(s.x < -12) s.x = W+12;
+    if(s.x > W+12) s.x = -12;
   }
+}
 
-  function drawTree(now, rotY){
-    ctx.globalCompositeOperation = 'lighter';
-    var hHalf = treeH * 0.5;
-    var boost = igniteBoost(now);
-    var front = 1 - Math.max(0, Math.min(1, (now - igniteAt) / 1200));
-    var igniting = igniteAt >= 0 && (now - igniteAt) < 2800;
+/* ---------- 初始化 ---------- */
+function rebuildAll(){
+  measure();
+  buildSky();
+  buildStars();
+  buildSnow();
+  buildSpiral();
+  buildPhantoms();
+  buildBursts();
+  buildFog();
+}
 
-    for(var i = 0; i < pts.length; i++){
-      var p = pts[i];
-      var ang = p.a + rotY;
-      var z3 = p.r * Math.sin(ang);
-      var x3 = p.r * Math.cos(ang);
-      var pf = persp / (persp + z3);
-      var sx = cx + x3 * pf;
-      var sy = cy + (hHalf - p.t * treeH) * (0.94 + 0.06 * pf);
-      var depth = (z3 / baseR + 1) * 0.5;
+var rafId = 0, lastTs = 0;
 
-      var flick = reduce ? 0.86 : (0.4 + 0.6 * (0.5 + 0.5 * Math.sin(now * p.sp + p.ph)));
-      var alpha = (0.07 + 0.55 * depth) * flick * p.kA;
-      var size = p.sz * (0.46 + 0.54 * pf) * 3.2;
+function animate(ts){
+  if(!running){ rafId = 0; return; }
+  if(!lastTs) lastTs = ts;
+  tick(ts - lastTs);
+  lastTs = ts;
+  draw();
+  rafId = requestAnimationFrame(animate);
+}
 
-      if(p.hot){
-        alpha *= 1.9;
-        size *= 1.55;
+function start(){
+  rebuildAll();
+  t0 = performance.now();
+  lastTs = 0;
+  running = true;
+  if(!rafId) rafId = requestAnimationFrame(animate);
+}
+
+var rzTimer = 0;
+window.addEventListener('resize', function(){
+  clearTimeout(rzTimer);
+  rzTimer = setTimeout(function(){
+    rebuildAll();
+  }, 180);
+});
+
+/* ---------- 点击点亮 ---------- */
+stage.addEventListener('click', function(){
+  if(editing) return;
+  ignite();
+});
+
+/* ---------- 文字编辑 ---------- */
+var DEFAULT_TEXTS = {
+  't-merry':'Merry Christmas',
+  't-sub':'愿所有的美好都如约而至 · 2026',
+  't-cn-l1':'亲爱的你',
+  't-cn-l2':'圣诞快乐',
+  't-cn-l3':'愿所有的美好都如约而至',
+  't-who':'爱你的我',
+  't-when':'2026.12.25'
+};
+var storeKey = 'xmas:texts:v6';
+
+function applyTexts(obj){
+  var merry = document.getElementById('t-merry');
+  var sub = document.getElementById('t-sub');
+  var cn = document.getElementById('t-cn');
+  var sign = document.getElementById('t-sign');
+  if(obj['t-merry']) merry.textContent = obj['t-merry'];
+  if(obj['t-sub']) sub.textContent = obj['t-sub'];
+  if(cn){
+    var lns = cn.querySelectorAll('.ln');
+    if(lns[0] && obj['t-cn-l1']) lns[0].textContent = obj['t-cn-l1'];
+    if(lns[1] && obj['t-cn-l2']) lns[1].textContent = obj['t-cn-l2'];
+    if(lns[2] && obj['t-cn-l3']) lns[2].textContent = obj['t-cn-l3'];
+  }
+  if(sign){
+    var who = sign.querySelector('.who');
+    var when = sign.querySelector('.when');
+    if(who && obj['t-who']) who.textContent = obj['t-who'];
+    if(when && obj['t-when']) when.textContent = obj['t-when'];
+  }
+}
+
+function collectTexts(){
+  var o = {};
+  var merry = document.getElementById('t-merry');
+  var sub = document.getElementById('t-sub');
+  var cn = document.getElementById('t-cn');
+  var sign = document.getElementById('t-sign');
+  if(merry) o['t-merry'] = merry.textContent.trim();
+  if(sub) o['t-sub'] = sub.textContent.trim();
+  if(cn){
+    var lns = cn.querySelectorAll('.ln');
+    if(lns[0]) o['t-cn-l1'] = lns[0].textContent.trim();
+    if(lns[1]) o['t-cn-l2'] = lns[1].textContent.trim();
+    if(lns[2]) o['t-cn-l3'] = lns[2].textContent.trim();
+  }
+  if(sign){
+    var who = sign.querySelector('.who');
+    var when = sign.querySelector('.when');
+    if(who) o['t-who'] = who.textContent.trim();
+    if(when) o['t-when'] = when.textContent.trim();
+  }
+  return o;
+}
+
+try{
+  var saved = JSON.parse(localStorage.getItem(storeKey) || 'null');
+  if(saved) applyTexts(saved);
+}catch(e){}
+
+var editBtn = document.getElementById('editBtn');
+var editTargets = [
+  document.getElementById('t-merry'),
+  document.getElementById('t-sub'),
+  document.getElementById('t-cn'),
+  document.getElementById('t-sign')
+];
+
+editBtn.addEventListener('click', function(e){
+  e.stopPropagation();
+  editing = !editing;
+  document.body.classList.toggle('editing', editing);
+  editBtn.querySelector('.dot').style.background = editing ? '#fff' : '';
+  for(var i=0;i<editTargets.length;i++){
+    var el = editTargets[i];
+    if(!el) continue;
+    if(editing){
+      var kids = el.classList.contains('cn') || el.classList.contains('sign')
+        ? el.querySelectorAll('.ln, .who, .when')
+        : [el];
+      for(var k=0;k<kids.length;k++){
+        kids[k].setAttribute('contenteditable','true');
+        kids[k].spellcheck = false;
       }
-
-      if(igniting && p.t <= front){
-        alpha = Math.min(1, alpha * (1 + 1.6 * boost));
-        size *= (1 + 0.5 * boost);
-      }
-
-      if(alpha > 1) alpha = 1;
-      ctx.globalAlpha = alpha;
-      ctx.drawImage(sprites[p.kind], sx - size * 0.5, sy - size * 0.5, size, size);
-    }
-    ctx.globalAlpha = 1;
-
-    for(var w = 0; w < wishLights.length; w++){
-      var q = wishLights[w];
-      var a2 = q.a + rotY;
-      var z2 = q.r * Math.sin(a2);
-      var x2 = q.r * Math.cos(a2);
-      var pf2 = persp / (persp + z2);
-      var gx = cx + x2 * pf2;
-      var gy2 = cy + (hHalf - q.t * treeH) * (0.94 + 0.06 * pf2);
-      var breathe = reduce ? 1 : (0.7 + 0.3 * Math.sin(now * 0.0022 + q.ph));
-      var gs = 11 * breathe;
-      ctx.globalAlpha = 0.92;
-      ctx.drawImage(sprites[3], gx - gs, gy2 - gs, gs * 2, gs * 2);
-    }
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  function drawFlare(now){
-    var sy = cy - treeH * 0.5 - treeH * 0.012;
-    var pulse = reduce ? 1 : 0.8 + 0.2 * Math.sin(now * 0.0016);
-    var boost = igniteBoost(now);
-    var s = Math.max(14, treeH * 0.062);
-
-    ctx.globalCompositeOperation = 'lighter';
-
-    ctx.globalAlpha = Math.min(1, (0.24 + boost * 0.2) * pulse);
-    ctx.drawImage(sprites[2], cx - s * 3.4, sy - s * 3.4, s * 6.8, s * 6.8);
-
-    ctx.globalAlpha = Math.min(1, (0.3 + boost * 0.2) * pulse);
-    ctx.drawImage(snowSoft, cx - s * 3.0, sy - s * 0.42, s * 6.0, s * 0.84);
-    ctx.globalAlpha = Math.min(1, (0.22 + boost * 0.15) * pulse);
-    ctx.drawImage(snowSoft, cx - s * 0.36, sy - s * 2.4, s * 0.72, s * 4.8);
-
-    ctx.globalAlpha = Math.min(1, (0.9 + boost * 0.1) * pulse);
-    ctx.drawImage(sprites[0], cx - s * 0.9, sy - s * 0.9, s * 1.8, s * 1.8);
-
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  function drawSnow(dt){
-    for(var i = 0; i < flakes.length; i++){
-      var f = flakes[i];
-      if(dt){
-        f.y += f.vy * dt * 0.062;
-        f.x += (f.vx + Math.sin(f.y * 0.014 + f.ph) * 0.22) * dt * 0.062;
-        if(f.y > H + 10){ f.y = -10; f.x = Math.random() * W; }
-        if(f.x < -12) f.x = W + 12;
-        if(f.x > W + 12) f.x = -12;
-      }
-      if(f.soft){
-        var ss = f.r * 11;
-        ctx.globalAlpha = f.a * 0.42;
-        ctx.drawImage(snowSoft, f.x - ss * 0.5, f.y - ss * 0.5, ss, ss);
-        ctx.globalAlpha = 1;
-      }else{
-        ctx.beginPath();
-        ctx.fillStyle = f.warm
-          ? 'rgba(255,196,228,' + f.a.toFixed(3) + ')'
-          : 'rgba(250,240,248,' + f.a.toFixed(3) + ')';
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
+    } else {
+      var kids2 = el.querySelectorAll('.ln, .who, .when, [contenteditable]');
+      for(var j=0;j<kids2.length;j++) kids2[j].removeAttribute('contenteditable');
+      if(el.hasAttribute && el.hasAttribute('contenteditable')) el.removeAttribute('contenteditable');
+      try{ localStorage.setItem(storeKey, JSON.stringify(collectTexts())); }catch(err){}
     }
   }
+});
 
-  function draw(now){
-    if(!ctx) return;
-    ctx.clearRect(0, 0, W, H);
-    drawSky(now);
-    drawRidge();
-    drawGroundPool();
-    drawFog();
-    var rotY = rotSmooth + rotAuto;
-    drawTree(now, rotY);
-    drawGroundStars(now);
-    drawRings(now);
-    drawFlare(now);
-    drawSnow(Math.min(now - lastNow, 64));
-    lastNow = now;
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && editing){ editBtn.click(); }
+});
+
+/* 页面不可见时停掉 rAF，省电 */
+document.addEventListener('visibilitychange', function(){
+  running = !document.hidden;
+  if(running && !rafId){
+    lastTs = 0;
+    rafId = requestAnimationFrame(animate);
   }
+});
 
-  function frame(now){
-    rafId = null;
-    if(!running) return;
-    if(!reduce){
-      rotSmooth += (rotTarget - rotSmooth) * 0.045;
-      rotAuto = (now - t0) * 0.000032;
-    }
-    draw(now);
-    if(!reduce) rafId = requestAnimationFrame(frame);
-  }
-
-  function start(){
-    if(rafId !== null || reduce) return;
-    lastNow = performance.now();
-    rafId = requestAnimationFrame(frame);
-  }
-
-  function onResize(){
-    measure();
-    buildTree();
-    buildFog();
-    buildRing();
-    syncLights();
-    if(reduce) draw(performance.now());
-    else start();
-  }
-
-  if(ctx){
-    buildSprites();
-    measure();
-    buildTree();
-    buildFog();
-    buildRing();
-    t0 = performance.now();
-
-    window.addEventListener('resize', function(){
-      clearTimeout(onResize._t);
-      onResize._t = setTimeout(onResize, 180);
-    });
-
-    window.addEventListener('pointermove', function(e){
-      if(!desk) return;
-      rotTarget = ((e.clientX / Math.max(1, window.innerWidth)) - 0.5) * 1.05;
-    }, {passive:true});
-
-    document.addEventListener('visibilitychange', function(){
-      running = !document.hidden;
-      if(running) start();
-    });
-
-    if(typeof IntersectionObserver !== 'undefined'){
-      new IntersectionObserver(function(es){
-        running = es[0].isIntersecting;
-        if(running) start();
-      }, {threshold: 0.02}).observe(cvs);
-    }
-
-    if(reduce) draw(performance.now());
-    else start();
-
-    if(reduceMQ.addEventListener){
-      reduceMQ.addEventListener('change', function(e){
-        reduce = e.matches;
-        if(reduce){
-          if(rafId !== null){ cancelAnimationFrame(rafId); rafId = null; }
-          draw(performance.now());
-        }else{
-          start();
-        }
-      });
-    }
-
-    var poster = document.getElementById('poster');
-    if(poster){
-      poster.addEventListener('click', function(){
-        if(editing) return;
-        igniteAt = performance.now();
-        showToast('灯都亮了');
-        if(reduce) draw(performance.now());
-      });
-    }
-  }
-
-  /* ================= 倒计时 ================= */
-  var cdD = document.getElementById('cd-d');
-  var cdH = document.getElementById('cd-h');
-  var cdM = document.getElementById('cd-m');
-  var cdS = document.getElementById('cd-s');
-  var cdWrap = document.getElementById('countdown');
-
-  function pad(v){ return (v < 10 ? '0' : '') + v; }
-
-  function tick(){
-    if(!cdWrap || !cdD) return;
-    var now = new Date();
-    var y = now.getFullYear();
-    var thisXmas = new Date(y, 11, 25, 0, 0, 0);
-    var nextXmas = new Date(y + 1, 11, 25, 0, 0, 0);
-    var dayAfter = new Date(y, 11, 26, 0, 0, 0);
-
-    if(now >= thisXmas && now < dayAfter){
-      cdWrap.innerHTML = '<span>今天就是圣诞节</span>';
-      return;
-    }
-    var target = now < thisXmas ? thisXmas : nextXmas;
-    var left = Math.max(0, target - now);
-    cdD.textContent = String(Math.floor(left / 86400000));
-    cdH.textContent = pad(Math.floor(left % 86400000 / 3600000));
-    cdM.textContent = pad(Math.floor(left % 3600000 / 60000));
-    cdS.textContent = pad(Math.floor(left % 60000 / 1000));
-  }
-  tick();
-  setInterval(tick, 1000);
-
-  /* ================= 心愿 ================= */
-  var KEY = 'xmas:wishes:v1';
-  var wishes = [];
-  var form = document.getElementById('wishForm');
-  var input = document.getElementById('wishInput');
-  var list = document.getElementById('wishList');
-  var countEl = document.getElementById('wishCount');
-  var hint = document.getElementById('wishHint');
-
-  var toast = document.getElementById('toast');
-  var toastTimer = null;
-
-  function showToast(msg){
-    if(!toast) return;
-    toast.textContent = msg;
-    toast.classList.add('on');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 2200);
-  }
-
-  function loadWishes(){
-    try{
-      var raw = localStorage.getItem(KEY);
-      if(raw){
-        var parsed = JSON.parse(raw);
-        if(Array.isArray(parsed)){
-          wishes = parsed.filter(function(w){ return w && typeof w.text === 'string'; }).slice(0, 60);
-        }
-      }
-    }catch(err){ wishes = []; }
-  }
-
-  function saveWishes(){
-    try{ localStorage.setItem(KEY, JSON.stringify(wishes)); }catch(err){}
-  }
-
-  function makeLight(i){
-    var t = 0.1 + ((i * 0.417) % 0.78);
-    var a = (i * 2.3999) % (Math.PI * 2 * 8);
-    var rr = baseR * Math.pow(1 - t, 0.96) * 0.95;
-    return { t: t, a: a, r: rr, ph: (i * 1.7) % (Math.PI * 2) };
-  }
-
-  function syncLights(){
-    wishLights = wishes.map(function(_, i){ return makeLight(i); });
-  }
-
-  function fmtTime(ts){
-    var d = new Date(ts);
-    if(isNaN(d.getTime())) return '';
-    return pad(d.getMonth() + 1) + '/' + pad(d.getDate());
-  }
-
-  function esc(s){
-    return String(s).replace(/[&<>"]/g, function(c){
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-    });
-  }
-
-  function render(){
-    if(!list) return;
-    if(wishes.length === 0){
-      list.innerHTML = '<p class="wish-empty">还没有灯。第一盏，留给你。</p>';
-      if(countEl) countEl.textContent = '';
-      return;
-    }
-    var html = '';
-    var show = Math.min(wishes.length, 8);
-    for(var i = 0; i < show; i++){
-      var w = wishes[wishes.length - 1 - i];
-      html += '<div class="wish-item">'
-           +   '<span class="bulb" aria-hidden="true"></span>'
-           +   '<span class="txt">' + esc(w.text) + '</span>'
-           +   '<span class="when">' + fmtTime(w.ts) + '</span>'
-           + '</div>';
-    }
-    if(wishes.length > show){
-      html += '<p class="wish-empty">还有 ' + (wishes.length - show) + ' 盏，就留给树自己记着。</p>';
-    }
-    list.innerHTML = html;
-    if(countEl) countEl.textContent = '树上有 ' + wishes.length + ' 盏灯';
-  }
-
-  function showHint(){
-    if(!hint) return;
-    hint.classList.add('on');
-    clearTimeout(showHint._t);
-    showHint._t = setTimeout(function(){ hint.classList.remove('on'); }, 2600);
-  }
-
-  if(form){
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var v = (input && input.value || '').trim();
-      if(!v){
-        showHint();
-        if(input) input.focus();
-        return;
-      }
-      wishes.push({ text: v.slice(0, 40), ts: Date.now() });
-      saveWishes();
-      syncLights();
-      render();
-      if(input){ input.value = ''; input.blur(); }
-      showToast('已经挂上了');
-    });
-  }
-
-  /* ================= 文字与图片自定义 ================= */
-  var TEXT_KEY = 'xmas:texts:v4';
-  var IMG_KEY = 'xmas:images:v4';
-  var DEFAULTS = {
-    'merry-en': 'Merry Christmas',
-    'merry-sub': '写给一个人 · 二〇二六',
-    'merry-cn': '平安夜',
-    eyebrow: '二〇二六年 · 十二月二十五日',
-    h1: '愿这一年的雪，落在你想去的地方',
-    lead: '这里只有一棵树。它不唱歌，也不掉礼物。你把手放上去，它会亮一点；你写下一句话，它会替你记住。',
-    'btn-ignite': '点亮这棵树',
-    cta: '挂一盏灯',
-    'h2-about': '一棵没有叶子的树',
-    p1: '上面那棵树由光点沿一条螺旋排成，从底座绕到顶端，一共十二圈。它没有树叶，也没有树皮，灯串就是它的全部结构。',
-    p2: '近处的点亮，远处的点暗；雪落下来，有的快，有的慢。这不是物理，只是想让它看起来像真的。',
-    p3: '每年十二月，人们把常青树搬进屋里。树不解释什么，它只是站在那里，让房间亮一点。',
-    'h2-wish': '把一句话，挂上去',
-    'wish-sub': '写下的心愿会变成树上的一盏灯，只留在这台设备上——不上传，也不发给任何人。',
-    'btn-wish': '挂到树上',
-    foot1: '一棵手工做的树 · 二〇二六',
-    foot2: '心愿和文字只保存在你的浏览器里'
-  };
-
-  var DEFAULT_IMAGES = [
-    { src: 'assets/christmas-window.jpg', cap: '十二月的窗台。光只够照亮眼前这一点。' }
-  ];
-
-  var texts = {};
-  var images = [];
-  var editing = false;
-  var pendingIdx = -999;
-  var editBtn = document.getElementById('editBtn');
-  var editLabel = document.getElementById('editBtnLabel');
-  var gallery = document.getElementById('gallery');
-  var fileInput = document.getElementById('fileInput');
-  var addImgBtn = document.getElementById('addImgBtn');
-
-  function loadState(){
-    try{
-      var raw = localStorage.getItem(TEXT_KEY);
-      if(raw){
-        var p = JSON.parse(raw);
-        if(p && typeof p === 'object') texts = p;
-      }
-    }catch(err){ texts = {}; }
-
-    try{
-      var ri = localStorage.getItem(IMG_KEY);
-      if(ri){
-        var ip = JSON.parse(ri);
-        if(Array.isArray(ip) && ip.length) images = ip;
-      }
-    }catch(err){}
-
-    if(!images.length) images = DEFAULT_IMAGES.map(function(o){ return { src: o.src, cap: o.cap }; });
-  }
-
-  function saveTexts(){
-    try{ localStorage.setItem(TEXT_KEY, JSON.stringify(texts)); }
-    catch(err){ showToast('存不下了'); }
-  }
-
-  function saveImages(){
-    try{ localStorage.setItem(IMG_KEY, JSON.stringify(images)); }
-    catch(err){ showToast('图片太大，浏览器存不下，换张小一点的'); }
-  }
-
-  function applyTexts(){
-    var nodes = document.querySelectorAll('[data-edit]');
-    for(var i = 0; i < nodes.length; i++){
-      var k = nodes[i].getAttribute('data-edit');
-      if(typeof texts[k] === 'string' && texts[k].length) nodes[i].textContent = texts[k];
-    }
-  }
-
-  function renderGallery(){
-    if(!gallery) return;
-    var html = '';
-    for(var i = 0; i < images.length; i++){
-      var im = images[i];
-      html += '<figure class="shot">'
-           +   '<img src="' + esc(im.src) + '" alt="' + esc(im.cap || '圣诞图片') + '">'
-           +   '<figcaption data-edit="cap' + i + '" data-cap="' + i + '">' + esc(im.cap || '') + '</figcaption>'
-           +   '<div class="img-tools">'
-           +     '<button type="button" class="img-btn" data-act="replace" data-i="' + i + '">换图</button>'
-           +     (images.length > 1 ? '<button type="button" class="img-btn danger" data-act="remove" data-i="' + i + '">删除</button>' : '')
-           +   '</div>'
-           + '</figure>';
-    }
-    gallery.innerHTML = html;
-    syncEditable();
-  }
-
-  function syncEditable(){
-    var nodes = document.querySelectorAll('[data-edit]');
-    for(var i = 0; i < nodes.length; i++){
-      if(editing) nodes[i].setAttribute('contenteditable', 'true');
-      else nodes[i].removeAttribute('contenteditable');
-    }
-  }
-
-  function commitEdit(el){
-    if(!el || !el.getAttribute) return;
-    var val = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    var capIdx = el.getAttribute('data-cap');
-    if(capIdx !== null){
-      var idx = parseInt(capIdx, 10);
-      if(images[idx]){
-        images[idx].cap = val;
-        saveImages();
-      }
-      return;
-    }
-    var k = el.getAttribute('data-edit');
-    if(!k) return;
-    if(!val){
-      el.textContent = typeof texts[k] === 'string' && texts[k] ? texts[k] : (DEFAULTS[k] || '');
-      return;
-    }
-    texts[k] = val;
-    saveTexts();
-  }
-
-  document.addEventListener('blur', function(e){
-    if(!editing) return;
-    var el = e.target;
-    if(el && el.getAttribute && el.getAttribute('data-edit')) commitEdit(el);
-  }, true);
-
-  if(editBtn){
-    editBtn.addEventListener('click', function(){
-      editing = !editing;
-      document.body.classList.toggle('editing', editing);
-      if(editLabel) editLabel.textContent = editing ? '完成' : '编辑文字';
-      syncEditable();
-      showToast(editing ? '点文字就能直接改，改完点完成' : '已保存到这台设备');
-    });
-  }
-
-  /* ================= 树旁的中文短语轮播 ================= */
-  var PHRASES = ['平安夜', '亲爱的你', '一夜好眠', '圣诞快乐'];
-  var merryCn = document.getElementById('merryCn');
-  var phraseIdx = 0;
-
-  if(merryCn){
-    setInterval(function(){
-      if(reduce) return;
-      if(editing) return;
-      if(texts['merry-cn']) return;
-      if(document.activeElement === merryCn) return;
-      merryCn.classList.add('swap');
-      setTimeout(function(){
-        phraseIdx = (phraseIdx + 1) % PHRASES.length;
-        merryCn.textContent = PHRASES[phraseIdx];
-        merryCn.classList.remove('swap');
-      }, 520);
-    }, 3400);
-  }
-
-  function compressImage(file, cb){
-    var url = URL.createObjectURL(file);
-    var img = new Image();
-    img.onload = function(){
-      var maxW = 1500;
-      var scale = Math.min(1, maxW / (img.width || maxW));
-      var w = Math.round((img.width || maxW) * scale);
-      var h = Math.round((img.height || maxW) * scale);
-      var c = document.createElement('canvas');
-      c.width = w;
-      c.height = h;
-      var g = c.getContext('2d');
-      g.drawImage(img, 0, 0, w, h);
-      URL.revokeObjectURL(url);
-      cb(c.toDataURL('image/jpeg', 0.82));
-    };
-    img.onerror = function(){
-      URL.revokeObjectURL(url);
-      showToast('这张图读不出来，换一张试试');
-    };
-    img.src = url;
-  }
-
-  if(gallery){
-    gallery.addEventListener('click', function(e){
-      var btn = e.target.closest ? e.target.closest('[data-act]') : null;
-      if(!btn) return;
-      e.preventDefault();
-      var act = btn.getAttribute('data-act');
-      var i = parseInt(btn.getAttribute('data-i'), 10);
-
-      if(act === 'replace'){
-        pendingIdx = i;
-        fileInput.value = '';
-        fileInput.click();
-      }else if(act === 'remove'){
-        if(images.length <= 1) return;
-        images.splice(i, 1);
-        saveImages();
-        renderGallery();
-        showToast('已删除这张图');
-      }
-    });
-  }
-
-  if(addImgBtn){
-    addImgBtn.addEventListener('click', function(){
-      pendingIdx = -1;
-      fileInput.value = '';
-      fileInput.click();
-    });
-  }
-
-  if(fileInput){
-    fileInput.addEventListener('change', function(){
-      var f = fileInput.files && fileInput.files[0];
-      if(!f) return;
-      compressImage(f, function(src){
-        if(pendingIdx === -1){
-          if(images.length >= 6){ showToast('最多放 6 张'); return; }
-          images.push({ src: src, cap: '写一句图注' });
-        }else if(pendingIdx >= 0 && images[pendingIdx]){
-          images[pendingIdx].src = src;
-        }
-        pendingIdx = -999;
-        saveImages();
-        renderGallery();
-        showToast('图片已存到这台设备');
-      });
-    });
-  }
-
-  var toTop = document.getElementById('toTop');
-  if(toTop){
-    toTop.addEventListener('click', function(e){
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
-    });
-  }
-
-  loadState();
-  loadWishes();
-  syncLights();
-  render();
-  renderGallery();
-  applyTexts();
-  syncEditable();
+start();
 })();
 </script>
 </body>
