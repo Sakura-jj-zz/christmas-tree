@@ -50,6 +50,42 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* ===== 编辑开关 ===== */
+  .editor-bar{
+    position:fixed;top:14px;right:14px;z-index:9;
+    display:flex;gap:8px;
+  }
+  .edit-btn{
+    display:inline-flex;align-items:center;gap:7px;
+    min-height:44px;padding:0 14px;
+    background:rgba(10,23,20,.82);
+    border:1px solid rgba(230,192,120,.34);
+    border-radius:2px;
+    color:var(--gold-lit);
+    font-family:var(--sans);font-size:.8rem;
+    cursor:pointer;
+    transition:background .25s ease,border-color .25s ease;
+  }
+  .edit-btn:hover{background:rgba(15,36,28,.95);border-color:rgba(230,192,120,.7)}
+  .edit-btn svg{width:14px;height:14px;flex:0 0 auto}
+
+  body.editing .edit-btn{
+    background:rgba(230,192,120,.18);
+    border-color:rgba(230,192,120,.85);
+    color:#fff;
+  }
+
+  [data-edit]{transition:outline-color .2s ease}
+  body.editing [data-edit]{
+    outline:1px dashed rgba(230,192,120,.5);
+    outline-offset:4px;
+    cursor:text;
+    border-radius:1px;
+  }
+  body.editing [data-edit]:focus{
+    outline:1px solid rgba(230,192,120,.9);
+  }
+
   /* ===== 首屏 ===== */
   .hero{
     position:relative;
@@ -81,7 +117,6 @@
     letter-spacing:.04em;
     color:var(--gold);
     opacity:.72;
-    font-family:var(--sans);
   }
   h1{
     margin:0 0 20px;
@@ -101,8 +136,31 @@
     color:var(--ink-dim);
   }
   .hero-actions{
-    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
-    margin-bottom:30px;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    margin-bottom:28px;
+  }
+  .btn-ignite{
+    display:inline-flex;align-items:center;gap:9px;
+    min-height:48px;padding:0 20px;
+    background:rgba(230,192,120,.13);
+    border:1px solid rgba(230,192,120,.5);
+    border-radius:2px;
+    color:var(--gold-lit);
+    font-family:var(--sans);
+    font-size:.92rem;
+    cursor:pointer;
+    transition:background .25s ease,border-color .25s ease,box-shadow .35s ease;
+  }
+  .btn-ignite:hover{
+    background:rgba(230,192,120,.22);
+    border-color:rgba(230,192,120,.85);
+    box-shadow:0 0 22px rgba(230,192,120,.18);
+  }
+  .btn-ignite:active{background:rgba(230,192,120,.3)}
+  .btn-ignite .spark{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 10px 2px rgba(230,192,120,.5);
   }
   .cta{
     display:inline-flex;align-items:center;gap:11px;
@@ -110,25 +168,11 @@
     padding:0 2px;
     color:var(--gold-lit);
     text-decoration:none;
-    font-size:.94rem;
+    font-size:.9rem;
     border-bottom:1px solid rgba(230,192,120,.35);
-    transition:border-color .25s ease,color .25s ease;
-  }
-  .cta .cta-dot{
-    width:9px;height:9px;border-radius:50%;
-    background:var(--gold);
-    box-shadow:0 0 0 0 rgba(230,192,120,.55);
-    transition:box-shadow .35s ease;
+    transition:border-color .25s ease;
   }
   .cta:hover,.cta:focus-visible{border-bottom-color:rgba(230,192,120,.9)}
-  .cta:hover .cta-dot{box-shadow:0 0 16px 3px rgba(230,192,120,.5)}
-  .ghost-link{
-    display:inline-flex;align-items:center;min-height:44px;
-    font-size:.88rem;color:var(--ink-faint);text-decoration:none;
-    border-bottom:1px solid transparent;
-    transition:color .25s ease,border-color .25s ease;
-  }
-  .ghost-link:hover,.ghost-link:focus-visible{color:var(--ink-dim);border-bottom-color:rgba(156,172,164,.4)}
 
   .countdown{
     display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
@@ -141,7 +185,6 @@
     font-weight:400;
     font-size:1.24rem;
     color:var(--gold-lit);
-    font-feature-settings:"tnum";
     font-variant-numeric:tabular-nums;
     margin-right:2px;
   }
@@ -162,7 +205,6 @@
     font-weight:600;
     font-size:clamp(1.5rem,5.2vw,2.35rem);
     line-height:1.35;
-    letter-spacing:.01em;
     color:#F4EFE2;
     max-width:16em;
   }
@@ -173,7 +215,8 @@
   }
 
   .split{display:grid;gap:30px}
-  .shot{margin:0}
+  .gallery{display:grid;gap:20px}
+  .shot{margin:0;position:relative}
   .shot img{
     display:block;width:100%;height:auto;aspect-ratio:3/2;
     object-fit:cover;object-position:68% 62%;
@@ -186,6 +229,30 @@
     color:var(--ink-faint);
     letter-spacing:.02em;
   }
+  .img-tools{
+    display:none;
+    position:absolute;top:10px;right:10px;
+    gap:8px;
+  }
+  body.editing .img-tools{display:flex}
+  .img-btn{
+    min-height:44px;padding:0 13px;
+    background:rgba(8,18,15,.9);
+    border:1px solid rgba(230,192,120,.45);
+    border-radius:2px;
+    color:var(--gold-lit);
+    font-family:var(--sans);font-size:.78rem;
+    cursor:pointer;
+  }
+  .img-btn:hover{background:rgba(15,36,28,.98);border-color:rgba(230,192,120,.8)}
+  .img-btn.danger{border-color:rgba(201,81,59,.55);color:#E9A191}
+
+  .gallery-actions{
+    display:none;
+    margin-top:18px;
+  }
+  body.editing .gallery-actions{display:block}
+
   .prose p{
     margin:0 0 18px;
     font-size:.95rem;
@@ -243,7 +310,6 @@
     transition:background .25s ease,border-color .25s ease;
   }
   .wish-form button:hover{background:rgba(230,192,120,.18);border-color:rgba(230,192,120,.7)}
-  .wish-form button:active{background:rgba(230,192,120,.24)}
 
   .hint{
     min-height:22px;
@@ -282,7 +348,7 @@
     font-size:.72rem;
     color:var(--ink-faint);
     padding-top:5px;
-    font-feature-settings:"tnum";
+    font-variant-numeric:tabular-nums;
   }
   .wish-count{
     margin:0 0 4px;
@@ -313,7 +379,7 @@
   .foot-inner a:hover,.foot-inner a:focus-visible{color:var(--gold);border-bottom-color:rgba(230,192,120,.5)}
 
   .toast{
-    position:fixed;left:50%;bottom:30px;z-index:8;
+    position:fixed;left:50%;bottom:30px;z-index:10;
     transform:translate(-50%,14px);
     padding:11px 20px;
     background:#0F241C;
@@ -329,7 +395,6 @@
 
   :focus-visible{outline:2px solid rgba(230,192,120,.75);outline-offset:3px}
 
-  /* 首屏一次性编排 */
   @keyframes rise{
     from{opacity:0;transform:translateY(14px)}
     to{opacity:1;transform:none}
@@ -342,10 +407,8 @@
   .hero-copy > *:nth-child(5){animation-delay:.46s}
   @media (prefers-reduced-motion: reduce){
     .hero-copy > *{animation:none}
-    .toast{transition:opacity .2s ease}
   }
 
-  /* ===== 桌面 ===== */
   @media (min-width:860px){
     :root{--pad:40px}
     .hero{
@@ -362,7 +425,7 @@
       flex-direction:column;
       justify-content:center;
     }
-    h1{font-size:clamp(2.6rem,3.9vw,3.9rem)}
+    h1{font-size:clamp(2.5rem,3.8vw,3.8rem)}
     .lead{font-size:1rem}
     .chapter{padding-top:112px}
     .split{
@@ -378,16 +441,23 @@
 <body>
 <div class="grain" aria-hidden="true"></div>
 
+<div class="editor-bar">
+  <button type="button" class="edit-btn" id="editBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
+    <span id="editBtnLabel">编辑文字</span>
+  </button>
+</div>
+
 <!-- ===== 首屏 ===== -->
 <section class="hero">
   <div class="stage"><canvas id="tree" aria-hidden="true"></canvas></div>
   <div class="hero-copy">
-    <p class="eyebrow">二〇二六年 · 十二月二十五日</p>
-    <h1>愿这一年的雪，落在你想去的地方</h1>
-    <p class="lead">这里只有一棵树。它不唱歌，也不掉礼物。你把手放上去，它会亮一点；你写下一句话，它会替你记住。</p>
+    <p class="eyebrow" data-edit="eyebrow">二〇二六年 · 十二月二十五日</p>
+    <h1 data-edit="h1">愿这一年的雪，落在你想去的地方</h1>
+    <p class="lead" data-edit="lead">这里只有一棵树。它不唱歌，也不掉礼物。你把手放上去，它会亮一点；你写下一句话，它会替你记住。</p>
     <div class="hero-actions">
-      <a class="cta" href="#wish"><span class="cta-dot"></span>挂一盏灯</a>
-      <a class="ghost-link" href="#about">这棵树是怎么回事</a>
+      <button type="button" class="btn-ignite" id="igniteBtn"><span class="spark" aria-hidden="true"></span><span data-edit="btn-ignite">点亮这棵树</span></button>
+      <a class="cta" href="#wish" data-edit="cta">挂一盏灯</a>
     </div>
     <div class="countdown" id="countdown" aria-live="polite">
       <span>距圣诞节</span>
@@ -400,28 +470,28 @@
   <!-- ===== 关于这棵树 ===== -->
   <section class="chapter" id="about">
     <div class="rule"></div>
-    <h2>一棵没有叶子的树</h2>
+    <h2 data-edit="h2-about">一棵没有叶子的树</h2>
     <div class="split">
-      <figure class="shot">
-        <img src="assets/christmas-window.jpg" alt="深色窗台上放着一束松枝、两颗橙子和一支点着的蜡烛，窗外是落雪的夜">
-        <figcaption>十二月的窗台。光只够照亮眼前这一点。</figcaption>
-      </figure>
+      <div class="gallery" id="gallery"></div>
       <div class="prose">
-        <p>上面那棵树由光点沿一条螺旋排成，从底座绕到顶端，一共十三圈。它没有树叶，也没有树皮，<strong>灯串就是它的全部结构</strong>。</p>
-        <p>近处的点亮，远处的点暗；雪落下来，有的快，有的慢。这不是物理，只是想让它看起来像真的。</p>
-        <p>每年十二月，人们把常青树搬进屋里。树不解释什么，它只是站在那里，让房间亮一点。</p>
+        <p data-edit="p1">上面那棵树由光点沿一条螺旋排成，从底座绕到顶端，一共十五圈。它没有树叶，也没有树皮，<strong>灯串就是它的全部结构</strong>。</p>
+        <p data-edit="p2">近处的点亮，远处的点暗；雪落下来，有的快，有的慢。这不是物理，只是想让它看起来像真的。</p>
+        <p data-edit="p3">每年十二月，人们把常青树搬进屋里。树不解释什么，它只是站在那里，让房间亮一点。</p>
       </div>
+    </div>
+    <div class="gallery-actions">
+      <button type="button" class="img-btn" id="addImgBtn">添加图片</button>
     </div>
   </section>
 
   <!-- ===== 许愿 ===== -->
   <section class="chapter" id="wish">
     <div class="rule"></div>
-    <h2>把一句话，挂上去</h2>
-    <p class="wish-sub">写下的心愿会变成树上的一盏灯，只留在这台设备上——不上传，也不发给任何人。</p>
+    <h2 data-edit="h2-wish">把一句话，挂上去</h2>
+    <p class="wish-sub" data-edit="wish-sub">写下的心愿会变成树上的一盏灯，只留在这台设备上——不上传，也不发给任何人。</p>
     <form class="wish-form" id="wishForm" autocomplete="off">
       <input id="wishInput" type="text" maxlength="40" placeholder="今年的雪，想和谁一起看？" aria-label="写下你的心愿">
-      <button type="submit">挂到树上</button>
+      <button type="submit" data-edit="btn-wish">挂到树上</button>
     </form>
     <p class="hint" id="wishHint">还没写呢。一句话就够。</p>
 
@@ -434,39 +504,41 @@
 
 <footer>
   <div class="foot-inner">
-    <span>一棵手工做的树 · 二〇二六</span>
-    <span>心愿只保存在你的浏览器里</span>
+    <span data-edit="foot1">一棵手工做的树 · 二〇二六</span>
+    <span data-edit="foot2">心愿和文字只保存在你的浏览器里</span>
     <a href="#top" id="toTop">回到树顶</a>
   </div>
 </footer>
 
 <div class="toast" id="toast" role="status">已经挂上了</div>
+<input type="file" id="fileInput" accept="image/*" hidden>
 
 <script>
 (function(){
   'use strict';
 
-  /* ================= 首屏：光点圣诞树 ================= */
-  var cvs = document.getElementById('tree');
-  var ctx = cvs && cvs.getContext ? cvs.getContext('2d') : null;
   var reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
   var reduce = reduceMQ.matches;
 
+  /* ================= 首屏：光点圣诞树 ================= */
+  var cvs = document.getElementById('tree');
+  var ctx = cvs && cvs.getContext ? cvs.getContext('2d') : null;
+
   var W = 0, H = 0, DPR = 1;
   var cx = 0, cy = 0, treeH = 0, baseR = 0, persp = 0, desk = false;
-  var pts = [], flakes = [], sky = [], sprites = [];
+  var pts = [], flakes = [], sky = [], ground = [], sprites = [], snows;
   var wishLights = [];
   var canopy = null, canopyW = 0, canopyH = 0;
   var rotSmooth = 0, rotTarget = 0, rotAuto = 0;
-  var t0 = performance.now();
-  var running = true;
-  var rafId = null;
+  var t0 = performance.now(), lastNow = performance.now();
+  var running = true, rafId = null;
+  var igniteAt = -1;
 
   var COLORS = [
-    [222, 236, 231], /* 霜白 */
-    [126, 196, 158], /* 松绿 */
-    [248, 231, 190], /* 暖金 */
-    [201, 81, 59]    /* 胭脂 */
+    [222, 236, 231],
+    [126, 196, 158],
+    [248, 231, 190],
+    [201, 81, 59]
   ];
 
   function buildSprites(){
@@ -483,6 +555,16 @@
       g.fillRect(0, 0, 64, 64);
       return s;
     });
+
+    snows = document.createElement('canvas');
+    snows.width = snows.height = 48;
+    var sg = snows.getContext('2d');
+    var sgr = sg.createRadialGradient(24, 24, 0, 24, 24, 24);
+    sgr.addColorStop(0, 'rgba(255,255,255,0.95)');
+    sgr.addColorStop(0.3, 'rgba(240,248,244,0.55)');
+    sgr.addColorStop(1, 'rgba(240,248,244,0)');
+    sg.fillStyle = sgr;
+    sg.fillRect(0, 0, 48, 48);
   }
 
   function measure(){
@@ -519,14 +601,14 @@
     g.clearRect(0, 0, canopyW, canopyH);
 
     var ccx = canopyW / 2;
-    var count = Math.round(canopyW * canopyH / 42);
-    if(count > 9000) count = 9000;
+    var count = Math.round(canopyW * canopyH / 26);
+    if(count > 13000) count = 13000;
 
     for(var i = 0; i < count; i++){
       var v = Math.random();
       var maxR = canopyW * 0.44 * Math.pow(v, 0.98);
       var dx = (Math.random() * 2 - 1) * maxR;
-      var a = (0.028 + Math.random() * 0.052) * (0.34 + v * 0.92);
+      var a = (0.026 + Math.random() * 0.05) * (0.32 + v * 0.94);
       g.fillStyle = 'rgba(54,120,88,' + a.toFixed(3) + ')';
       var sz = 1 + Math.random() * 2;
       g.fillRect(ccx + dx, v * canopyH, sz, sz);
@@ -540,12 +622,12 @@
 
   function buildTree(){
     pts = [];
-    var n = W < 760 ? 1300 : 2100;
-    var turns = Math.PI * 2 * 13;
+    var n = W < 760 ? 2000 : 3400;
+    var turns = Math.PI * 2 * 15;
     for(var i = 0; i < n; i++){
-      var t = Math.pow(i / n, 0.88);
-      var a = t * turns + (Math.random() - 0.5) * 0.55;
-      var rr = baseR * Math.pow(1 - t, 1.06) * (0.84 + Math.random() * 0.24);
+      var t = Math.pow(i / n, 0.9);
+      var a = t * turns + (Math.random() - 0.5) * 0.5;
+      var rr = baseR * Math.pow(1 - t, 1.05) * (0.86 + Math.random() * 0.18);
       var pick = Math.random();
       var kind = 0;
       if(pick > 0.958) kind = 3;
@@ -555,7 +637,7 @@
         t: t,
         a: a,
         r: rr,
-        sz: 0.72 + Math.random() * 1.22,
+        sz: 0.66 + Math.random() * 1.1,
         ph: Math.random() * Math.PI * 2,
         sp: 0.0009 + Math.random() * 0.0032,
         kind: kind
@@ -563,40 +645,57 @@
     }
 
     sky = [];
-    var sn = Math.round(Math.min(90, W / 8));
+    var sn = Math.round(Math.min(110, W / 7));
     for(var k = 0; k < sn; k++){
       sky.push({
         x: Math.random() * W,
-        y: Math.random() * H * 0.72,
-        a: 0.06 + Math.random() * 0.22,
+        y: Math.random() * H * 0.74,
+        a: 0.06 + Math.random() * 0.24,
         ph: Math.random() * Math.PI * 2
       });
     }
 
+    /* 地面星尘：撒在树脚下 */
+    ground = [];
+    var gn = Math.round(Math.min(130, baseR * 0.75));
+    for(var q = 0; q < gn; q++){
+      var u = Math.random() * 2 - 1;
+      ground.push({
+        x: cx + u * baseR * 1.62,
+        y: cy + treeH * 0.5 + 4 + Math.random() * baseR * 0.24 - Math.abs(u) * 14,
+        r: 0.4 + Math.random() * 1.25,
+        a: 0.2 + Math.random() * 0.5,
+        ph: Math.random() * Math.PI * 2,
+        sp: 0.0008 + Math.random() * 0.0035,
+        gold: Math.random() > 0.42
+      });
+    }
+
     flakes = [];
-    var fn = Math.min(230, Math.round(W * H / 8200));
+    var fn = Math.min(360, Math.round(W * H / 5600));
     for(var j = 0; j < fn; j++){
       flakes.push({
         x: Math.random() * W,
         y: Math.random() * H,
-        r: 0.5 + Math.random() * 2.1,
-        vy: 0.22 + Math.random() * 0.95,
-        vx: (Math.random() - 0.5) * 0.4,
+        r: 0.45 + Math.random() * 2.3,
+        vy: 0.2 + Math.random() * 1.05,
+        vx: (Math.random() - 0.5) * 0.45,
         ph: Math.random() * Math.PI * 2,
-        a: 0.18 + Math.random() * 0.55
+        a: 0.14 + Math.random() * 0.62,
+        soft: Math.random() > 0.58
       });
     }
   }
 
   function drawGroundPool(){
     var gy = cy + treeH * 0.5 + 4;
-    var rad = baseR * 2.0;
+    var rad = baseR * 2.05;
     ctx.save();
     ctx.translate(cx, gy);
     ctx.scale(1, 0.34);
     var grd = ctx.createRadialGradient(0, 0, 0, 0, 0, rad);
-    grd.addColorStop(0, 'rgba(230,192,120,0.13)');
-    grd.addColorStop(0.42, 'rgba(110,170,142,0.055)');
+    grd.addColorStop(0, 'rgba(230,192,120,0.14)');
+    grd.addColorStop(0.42, 'rgba(110,170,142,0.06)');
     grd.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grd;
     ctx.beginPath();
@@ -605,18 +704,48 @@
     ctx.restore();
   }
 
+  function igniteBoost(now){
+    if(igniteAt < 0) return 0;
+    var dt = now - igniteAt;
+    if(dt < 0) return 0;
+    var hold = 1 - Math.max(0, (dt - 1300) / 1500);
+    if(hold <= 0) return 0;
+    return Math.max(0, Math.min(1, hold));
+  }
+
   function drawSky(now){
     for(var i = 0; i < sky.length; i++){
       var s = sky[i];
-      var tw = reduce ? 1 : 0.72 + 0.28 * Math.sin(now * 0.0009 + s.ph);
+      var tw = reduce ? 1 : 0.7 + 0.3 * Math.sin(now * 0.0009 + s.ph);
       ctx.fillStyle = 'rgba(224,238,232,' + (s.a * tw).toFixed(3) + ')';
       ctx.fillRect(s.x, s.y, 1, 1);
     }
   }
 
+  function drawGroundStars(now){
+    var boost = igniteBoost(now);
+    ctx.globalCompositeOperation = 'lighter';
+    for(var i = 0; i < ground.length; i++){
+      var g = ground[i];
+      var tw = reduce ? 0.85 : 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(now * g.sp + g.ph));
+      var a = g.a * tw * (1 + boost * 2.4);
+      if(a > 1) a = 1;
+      var size = g.r * 9 * (1 + boost * 1.2);
+      var img = sprites[g.gold ? 2 : 0];
+      ctx.globalAlpha = a;
+      ctx.drawImage(img, g.x - size * 0.5, g.y - size * 0.5, size, size);
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
   function drawTree(now, rotY){
     ctx.globalCompositeOperation = 'lighter';
     var hHalf = treeH * 0.5;
+    var boost = igniteBoost(now);
+    var front = 1 - Math.max(0, Math.min(1, (now - igniteAt) / 1200));
+    var igniting = igniteAt >= 0 && (now - igniteAt) < 2800;
+
     for(var i = 0; i < pts.length; i++){
       var p = pts[i];
       var ang = p.a + rotY;
@@ -634,14 +763,17 @@
       if(p.kind === 3) alpha = Math.min(1, alpha * 1.15);
 
       var size = p.sz * (0.5 + 0.5 * pf) * 6.4;
-      var img = sprites[p.kind];
+
+      if(igniting && p.t >= front){
+        alpha = Math.min(1, alpha * (1 + 1.5 * boost));
+        size *= (1 + 0.55 * boost);
+      }
 
       ctx.globalAlpha = alpha;
-      ctx.drawImage(img, sx - size * 0.5, sy - size * 0.5, size, size);
+      ctx.drawImage(sprites[p.kind], sx - size * 0.5, sy - size * 0.5, size, size);
     }
     ctx.globalAlpha = 1;
 
-    /* 心愿灯：每写一条，树上多一颗更亮的灯 */
     for(var w = 0; w < wishLights.length; w++){
       var q = wishLights[w];
       var a2 = q.a + rotY;
@@ -652,11 +784,10 @@
       var gy2 = cy + (hHalf - q.t * treeH) * (0.92 + 0.08 * pf2);
       var breathe = reduce ? 1 : (0.72 + 0.28 * Math.sin(now * 0.0022 + q.ph));
       var gs = 13 * breathe;
-      var glow = sprites[2];
       ctx.globalAlpha = 0.9;
-      ctx.drawImage(glow, gx - gs, gy2 - gs, gs * 2, gs * 2);
-      ctx.globalAlpha = 1;
+      ctx.drawImage(sprites[2], gx - gs, gy2 - gs, gs * 2, gs * 2);
     }
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
   }
 
@@ -665,18 +796,19 @@
     var pulse = reduce ? 1 : 0.68 + 0.32 * Math.sin(now * 0.0019);
     var s = Math.max(16, treeH * 0.052);
     var img = sprites[2];
+    var boost = igniteBoost(now);
 
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.5 * pulse;
+    ctx.globalAlpha = 0.5 * pulse * (1 + boost * 1.4);
     ctx.drawImage(img, cx - s * 1.9, sy - s * 1.9, s * 3.8, s * 3.8);
 
-    ctx.globalAlpha = 0.42 * pulse;
+    ctx.globalAlpha = 0.42 * pulse * (1 + boost * 1.6);
     ctx.drawImage(img, cx - s * 2.6, sy - s * 0.19, s * 5.2, s * 0.38);
     ctx.drawImage(img, cx - s * 0.19, sy - s * 2.6, s * 0.38, s * 5.2);
     ctx.drawImage(img, cx - s * 1.8, sy - s * 1.8, s * 3.6, s * 0.26);
     ctx.drawImage(img, cx - s * 1.8, sy - s * 1.8, s * 0.26, s * 3.6);
 
-    ctx.globalAlpha = 0.95 * pulse;
+    ctx.globalAlpha = Math.min(1, 0.95 * pulse * (1 + boost * 0.8));
     ctx.drawImage(img, cx - s * 0.62, sy - s * 0.62, s * 1.24, s * 1.24);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
@@ -686,16 +818,23 @@
     for(var i = 0; i < flakes.length; i++){
       var f = flakes[i];
       if(dt){
-        f.y += f.vy * dt * 0.055;
-        f.x += (f.vx + Math.sin(f.y * 0.014 + f.ph) * 0.32) * dt * 0.055;
-        if(f.y > H + 8){ f.y = -8; f.x = Math.random() * W; }
-        if(f.x < -10) f.x = W + 10;
-        if(f.x > W + 10) f.x = -10;
+        f.y += f.vy * dt * 0.058;
+        f.x += (f.vx + Math.sin(f.y * 0.015 + f.ph) * 0.36) * dt * 0.058;
+        if(f.y > H + 10){ f.y = -10; f.x = Math.random() * W; }
+        if(f.x < -12) f.x = W + 12;
+        if(f.x > W + 12) f.x = -12;
       }
-      ctx.beginPath();
-      ctx.fillStyle = 'rgba(235,244,240,' + f.a.toFixed(3) + ')';
-      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-      ctx.fill();
+      if(f.soft){
+        var ss = f.r * 9;
+        ctx.globalAlpha = f.a * 0.5;
+        ctx.drawImage(snows, f.x - ss * 0.5, f.y - ss * 0.5, ss, ss);
+        ctx.globalAlpha = 1;
+      }else{
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(235,244,240,' + f.a.toFixed(3) + ')';
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
@@ -705,14 +844,13 @@
     drawSky(now);
     drawGroundPool();
     drawCanopy();
+    drawGroundStars(now);
     var rotY = rotSmooth + rotAuto;
     drawTree(now, rotY);
     drawStar(now);
     drawSnow(Math.min(now - lastNow, 64));
     lastNow = now;
   }
-
-  var lastNow = performance.now();
 
   function frame(now){
     rafId = null;
@@ -736,11 +874,8 @@
     buildTree();
     buildCanopy();
     syncLights();
-    if(reduce){
-      draw(performance.now());
-    }else{
-      start();
-    }
+    if(reduce) draw(performance.now());
+    else start();
   }
 
   if(ctx){
@@ -772,11 +907,8 @@
       }, {threshold: 0.02}).observe(cvs);
     }
 
-    if(reduce){
-      draw(performance.now());
-    }else{
-      start();
-    }
+    if(reduce) draw(performance.now());
+    else start();
 
     if(reduceMQ.addEventListener){
       reduceMQ.addEventListener('change', function(e){
@@ -787,6 +919,15 @@
         }else{
           start();
         }
+      });
+    }
+
+    var igniteBtn = document.getElementById('igniteBtn');
+    if(igniteBtn){
+      igniteBtn.addEventListener('click', function(){
+        igniteAt = performance.now();
+        showToast('灯都亮了');
+        if(reduce) draw(performance.now());
       });
     }
   }
@@ -814,14 +955,10 @@
     }
     var target = now < thisXmas ? thisXmas : nextXmas;
     var left = Math.max(0, target - now);
-    var d = Math.floor(left / 86400000);
-    var h = Math.floor(left % 86400000 / 3600000);
-    var m = Math.floor(left % 3600000 / 60000);
-    var s = Math.floor(left % 60000 / 1000);
-    cdD.textContent = String(d);
-    cdH.textContent = pad(h);
-    cdM.textContent = pad(m);
-    cdS.textContent = pad(s);
+    cdD.textContent = String(Math.floor(left / 86400000));
+    cdH.textContent = pad(Math.floor(left % 86400000 / 3600000));
+    cdM.textContent = pad(Math.floor(left % 3600000 / 60000));
+    cdS.textContent = pad(Math.floor(left % 60000 / 1000));
   }
   tick();
   setInterval(tick, 1000);
@@ -834,7 +971,17 @@
   var list = document.getElementById('wishList');
   var countEl = document.getElementById('wishCount');
   var hint = document.getElementById('wishHint');
+
   var toast = document.getElementById('toast');
+  var toastTimer = null;
+
+  function showToast(msg){
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 2200);
+  }
 
   function loadWishes(){
     try{
@@ -845,21 +992,17 @@
           wishes = parsed.filter(function(w){ return w && typeof w.text === 'string'; }).slice(0, 60);
         }
       }
-    }catch(err){
-      wishes = [];
-    }
+    }catch(err){ wishes = []; }
   }
 
   function saveWishes(){
-    try{
-      localStorage.setItem(KEY, JSON.stringify(wishes));
-    }catch(err){ /* 存不下就算了，页面还能用 */ }
+    try{ localStorage.setItem(KEY, JSON.stringify(wishes)); }catch(err){}
   }
 
   function makeLight(i){
     var t = 0.1 + ((i * 0.417) % 0.78);
     var a = (i * 2.3999) % (Math.PI * 2 * 8);
-    var rr = baseR * Math.pow(1 - t, 1.06) * 0.95;
+    var rr = baseR * Math.pow(1 - t, 1.05) * 0.95;
     return { t: t, a: a, r: rr, ph: (i * 1.7) % (Math.PI * 2) };
   }
 
@@ -873,6 +1016,12 @@
     return pad(d.getMonth() + 1) + '/' + pad(d.getDate());
   }
 
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(c){
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
   function render(){
     if(!list) return;
     if(wishes.length === 0){
@@ -884,12 +1033,9 @@
     var show = Math.min(wishes.length, 8);
     for(var i = 0; i < show; i++){
       var w = wishes[wishes.length - 1 - i];
-      var text = String(w.text).replace(/[&<>"]/g, function(c){
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-      });
       html += '<div class="wish-item">'
            +   '<span class="bulb" aria-hidden="true"></span>'
-           +   '<span class="txt">' + text + '</span>'
+           +   '<span class="txt">' + esc(w.text) + '</span>'
            +   '<span class="when">' + fmtTime(w.ts) + '</span>'
            + '</div>';
     }
@@ -898,15 +1044,6 @@
     }
     list.innerHTML = html;
     if(countEl) countEl.textContent = '树上有 ' + wishes.length + ' 盏灯';
-  }
-
-  var toastTimer = null;
-  function showToast(msg){
-    if(!toast) return;
-    toast.textContent = msg;
-    toast.classList.add('on');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toast.classList.remove('on'); }, 2200);
   }
 
   function showHint(){
@@ -934,6 +1071,214 @@
     });
   }
 
+  /* ================= 文字与图片自定义 ================= */
+  var TEXT_KEY = 'xmas:texts:v3';
+  var IMG_KEY = 'xmas:images:v3';
+  var DEFAULTS = {
+    eyebrow: '二〇二六年 · 十二月二十五日',
+    h1: '愿这一年的雪，落在你想去的地方',
+    lead: '这里只有一棵树。它不唱歌，也不掉礼物。你把手放上去，它会亮一点；你写下一句话，它会替你记住。',
+    'btn-ignite': '点亮这棵树',
+    cta: '挂一盏灯',
+    'h2-about': '一棵没有叶子的树',
+    p1: '上面那棵树由光点沿一条螺旋排成，从底座绕到顶端，一共十五圈。它没有树叶，也没有树皮，灯串就是它的全部结构。',
+    p2: '近处的点亮，远处的点暗；雪落下来，有的快，有的慢。这不是物理，只是想让它看起来像真的。',
+    p3: '每年十二月，人们把常青树搬进屋里。树不解释什么，它只是站在那里，让房间亮一点。',
+    'h2-wish': '把一句话，挂上去',
+    'wish-sub': '写下的心愿会变成树上的一盏灯，只留在这台设备上——不上传，也不发给任何人。',
+    'btn-wish': '挂到树上',
+    foot1: '一棵手工做的树 · 二〇二六',
+    foot2: '心愿和文字只保存在你的浏览器里'
+  };
+
+  var DEFAULT_IMAGES = [
+    { src: 'assets/christmas-window.jpg', cap: '十二月的窗台。光只够照亮眼前这一点。' }
+  ];
+
+  var texts = {};
+  var images = [];
+  var editing = false;
+  var pendingIdx = -999;
+  var editBtn = document.getElementById('editBtn');
+  var editLabel = document.getElementById('editBtnLabel');
+  var gallery = document.getElementById('gallery');
+  var fileInput = document.getElementById('fileInput');
+  var addImgBtn = document.getElementById('addImgBtn');
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(TEXT_KEY);
+      if(raw){
+        var p = JSON.parse(raw);
+        if(p && typeof p === 'object') texts = p;
+      }
+    }catch(err){ texts = {}; }
+
+    try{
+      var ri = localStorage.getItem(IMG_KEY);
+      if(ri){
+        var ip = JSON.parse(ri);
+        if(Array.isArray(ip) && ip.length) images = ip;
+      }
+    }catch(err){}
+
+    if(!images.length) images = DEFAULT_IMAGES.map(function(o){ return { src: o.src, cap: o.cap }; });
+  }
+
+  function saveTexts(){
+    try{ localStorage.setItem(TEXT_KEY, JSON.stringify(texts)); }
+    catch(err){ showToast('存不下了'); }
+  }
+
+  function saveImages(){
+    try{ localStorage.setItem(IMG_KEY, JSON.stringify(images)); }
+    catch(err){ showToast('图片太大，浏览器存不下，换张小一点的'); }
+  }
+
+  function applyTexts(){
+    var nodes = document.querySelectorAll('[data-edit]');
+    for(var i = 0; i < nodes.length; i++){
+      var k = nodes[i].getAttribute('data-edit');
+      if(typeof texts[k] === 'string' && texts[k].length) nodes[i].textContent = texts[k];
+    }
+  }
+
+  function renderGallery(){
+    if(!gallery) return;
+    var html = '';
+    for(var i = 0; i < images.length; i++){
+      var im = images[i];
+      html += '<figure class="shot">'
+           +   '<img src="' + esc(im.src) + '" alt="' + esc(im.cap || '圣诞图片') + '">'
+           +   '<figcaption data-edit="cap' + i + '" data-cap="' + i + '">' + esc(im.cap || '') + '</figcaption>'
+           +   '<div class="img-tools">'
+           +     '<button type="button" class="img-btn" data-act="replace" data-i="' + i + '">换图</button>'
+           +     (images.length > 1 ? '<button type="button" class="img-btn danger" data-act="remove" data-i="' + i + '">删除</button>' : '')
+           +   '</div>'
+           + '</figure>';
+    }
+    gallery.innerHTML = html;
+    syncEditable();
+  }
+
+  function syncEditable(){
+    var nodes = document.querySelectorAll('[data-edit]');
+    for(var i = 0; i < nodes.length; i++){
+      if(editing) nodes[i].setAttribute('contenteditable', 'true');
+      else nodes[i].removeAttribute('contenteditable');
+    }
+  }
+
+  function commitEdit(el){
+    if(!el || !el.getAttribute) return;
+    var val = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    var capIdx = el.getAttribute('data-cap');
+    if(capIdx !== null){
+      var idx = parseInt(capIdx, 10);
+      if(images[idx]){
+        images[idx].cap = val;
+        saveImages();
+      }
+      return;
+    }
+    var k = el.getAttribute('data-edit');
+    if(!k) return;
+    if(!val){
+      el.textContent = typeof texts[k] === 'string' && texts[k] ? texts[k] : (DEFAULTS[k] || '');
+      return;
+    }
+    texts[k] = val;
+    saveTexts();
+  }
+
+  document.addEventListener('blur', function(e){
+    if(!editing) return;
+    var el = e.target;
+    if(el && el.getAttribute && el.getAttribute('data-edit')) commitEdit(el);
+  }, true);
+
+  if(editBtn){
+    editBtn.addEventListener('click', function(){
+      editing = !editing;
+      document.body.classList.toggle('editing', editing);
+      if(editLabel) editLabel.textContent = editing ? '完成' : '编辑文字';
+      syncEditable();
+      showToast(editing ? '点文字就能直接改，改完点完成' : '已保存到这台设备');
+    });
+  }
+
+  function compressImage(file, cb){
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function(){
+      var maxW = 1500;
+      var scale = Math.min(1, maxW / (img.width || maxW));
+      var w = Math.round((img.width || maxW) * scale);
+      var h = Math.round((img.height || maxW) * scale);
+      var c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      var g = c.getContext('2d');
+      g.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      cb(c.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = function(){
+      URL.revokeObjectURL(url);
+      showToast('这张图读不出来，换一张试试');
+    };
+    img.src = url;
+  }
+
+  if(gallery){
+    gallery.addEventListener('click', function(e){
+      var btn = e.target.closest ? e.target.closest('[data-act]') : null;
+      if(!btn) return;
+      e.preventDefault();
+      var act = btn.getAttribute('data-act');
+      var i = parseInt(btn.getAttribute('data-i'), 10);
+
+      if(act === 'replace'){
+        pendingIdx = i;
+        fileInput.value = '';
+        fileInput.click();
+      }else if(act === 'remove'){
+        if(images.length <= 1) return;
+        images.splice(i, 1);
+        saveImages();
+        renderGallery();
+        showToast('已删除这张图');
+      }
+    });
+  }
+
+  if(addImgBtn){
+    addImgBtn.addEventListener('click', function(){
+      pendingIdx = -1;
+      fileInput.value = '';
+      fileInput.click();
+    });
+  }
+
+  if(fileInput){
+    fileInput.addEventListener('change', function(){
+      var f = fileInput.files && fileInput.files[0];
+      if(!f) return;
+      compressImage(f, function(src){
+        if(pendingIdx === -1){
+          if(images.length >= 6){ showToast('最多放 6 张'); return; }
+          images.push({ src: src, cap: '写一句图注' });
+        }else if(pendingIdx >= 0 && images[pendingIdx]){
+          images[pendingIdx].src = src;
+        }
+        pendingIdx = -999;
+        saveImages();
+        renderGallery();
+        showToast('图片已存到这台设备');
+      });
+    });
+  }
+
   var toTop = document.getElementById('toTop');
   if(toTop){
     toTop.addEventListener('click', function(e){
@@ -942,9 +1287,13 @@
     });
   }
 
+  loadState();
   loadWishes();
   syncLights();
   render();
+  renderGallery();
+  applyTexts();
+  syncEditable();
 })();
 </script>
 </body>
