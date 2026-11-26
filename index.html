@@ -168,6 +168,29 @@
   }
   #discStage.on #discMeta{opacity:1}
 
+  /* 手动播放/暂停：浏览器拦截自动播放时，点这里就出声 */
+  #discPlay{
+    position:absolute;left:7vw;top:calc(9vh + clamp(92px, 26vmin, 168px) + 46px);
+    display:flex;align-items:center;gap:7px;height:32px;padding:0 14px 0 11px;
+    border-radius:999px;cursor:pointer;z-index:8;
+    border:1px solid rgba(255,158,200,.42);
+    background:linear-gradient(180deg, rgba(255,86,152,.26), rgba(120,20,60,.28));
+    color:#ffd8e8;font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:12px;letter-spacing:.10em;line-height:1;
+    box-shadow:0 0 22px rgba(255,60,140,.35), inset 0 0 16px rgba(255,120,175,.16);
+    backdrop-filter:blur(8px);
+    opacity:0;transform:translateY(4px);pointer-events:none;
+    transition:opacity .5s ease, transform .5s ease, background .3s ease;
+  }
+  #discPlay .ico{font-size:11px;opacity:.9}
+  #discPlay.show{opacity:1;transform:translateY(0);pointer-events:auto}
+  #discPlay.pulse{animation:playPulse 2.6s ease-in-out infinite}
+  @keyframes playPulse{
+    0%,100%{box-shadow:0 0 18px rgba(255,60,140,.30), inset 0 0 14px rgba(255,120,175,.14)}
+    50%{box-shadow:0 0 34px rgba(255,60,140,.62), inset 0 0 18px rgba(255,140,190,.26)}
+  }
+  #discPlay:hover{background:linear-gradient(180deg, rgba(255,96,160,.40), rgba(140,24,70,.34))}
+
   @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
   /* 地面上的礼物盒：点哪一个，就打开属于它的那张图和那段字 */
@@ -480,6 +503,7 @@
     </div>
   </div>
   <div id="discMeta">正在播放 · 喜欢你（现场版）</div>
+  <button id="discPlay" type="button" aria-label="播放或暂停音乐"><span class="ico">▶</span><span class="tx">轻点播放</span></button>
 
   <canvas id="snow" aria-hidden="true"></canvas>
 
@@ -520,8 +544,8 @@
   <input id="filePick" type="file" accept="image/*">
 </div>
 <audio id="song" preload="auto" loop>
-  <source src="https://sakura-jj-zz.github.io/christmas-tree/song.mp3" type="audio/mpeg">
   <source src="./song.mp3" type="audio/mpeg">
+  <source src="https://sakura-jj-zz.github.io/christmas-tree/song.mp3" type="audio/mpeg">
   <source src="https://aka.doubaocdn.com/s/tVeB8iqclT" type="audio/mpeg">
   <source src="https://aka.doubaocdn.com/s/ZQJgfxHURO" type="audio/mpeg">
 </audio>
@@ -574,6 +598,63 @@
     }catch(e){ actx = null; analyser = null; }
   }
 
+  /* ── 播放控制：自动播放被浏览器拦住时，用这颗按钮出声 ─────────────── */
+  var discPlayBtn = document.getElementById('discPlay');
+  var discMetaEl  = document.getElementById('discMeta');
+
+  function setPlayUI(playing){
+    if(!discPlayBtn) return;
+    discPlayBtn.classList.add('show');
+    discPlayBtn.classList.toggle('pulse', !playing);
+    var ic = discPlayBtn.querySelector('.ico'), tx = discPlayBtn.querySelector('.tx');
+    if(ic) ic.textContent = playing ? '‖' : '▶';
+    if(tx) tx.textContent = playing ? '暂停' : '轻点播放';
+    if(discMetaEl) discMetaEl.textContent = playing
+      ? '正在播放 · 喜欢你（现场版）'
+      : '还没出声 · 点上面那颗按钮';
+  }
+
+  function startSong(){
+    if(!song) return;
+    song.volume = 1;
+    try{
+      var p = song.play();
+      if(p && p.then){
+        p.then(function(){ setPlayUI(true); }).catch(function(){ setPlayUI(false); });
+      } else { setPlayUI(true); }
+    }catch(e){ setPlayUI(false); }
+    if(actx && actx.state === 'suspended'){ try{ actx.resume(); }catch(e){} }
+  }
+
+  /* 音频兜底：直链/CDN 打开时先走 CDN，失败就换下一个源 */
+  var SONG_FALLBACK = [
+    'https://aka.doubaocdn.com/s/tVeB8iqclT',
+    'https://sakura-jj-zz.github.io/christmas-tree/song.mp3',
+    'https://aka.doubaocdn.com/s/ZQJgfxHURO'
+  ];
+  var fbIdx = 0;
+  if(song){
+    var isCdn = /doubaocdn|byteimg|feishucdn/.test(location.hostname);
+    if(isCdn){
+      song.src = SONG_FALLBACK[0];
+      try{ song.load(); }catch(e){}
+    }
+    song.addEventListener('error', function(){
+      if(fbIdx < SONG_FALLBACK.length){
+        try{ song.src = SONG_FALLBACK[fbIdx]; fbIdx++; song.load(); }catch(e){}
+      }
+      setPlayUI(false);
+    });
+    song.addEventListener('play',  function(){ setPlayUI(true);  });
+    song.addEventListener('pause', function(){ setPlayUI(false); });
+  }
+  if(discPlayBtn){
+    discPlayBtn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if(song.paused) startSong(); else song.pause();
+    });
+  }
+
   function showHint(){
     if(hintShown || !nextHint) return;
     hintShown = true;
@@ -607,13 +688,9 @@
     snowStart();
     if(litCount() >= (boxes.length || 5)) setTimeout(showWish, 1800);
     if(!instant && song){
-      try{
-        song.volume = 1;
-        var p = song.play();
-        if(p && p.catch) p.catch(function(){});
-      }catch(e){}
-      if(actx && actx.state === 'suspended'){ try{ actx.resume(); }catch(e){} }
+      startSong();
     }
+    if(song) setTimeout(function(){ setPlayUI(!song.paused); }, instant ? 600 : 1600);
   }
 
   /* 让外圈光晕跟着音乐音量起伏 */
