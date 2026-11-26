@@ -510,22 +510,22 @@
 
   function buildTree(){
     pts = [];
-    var n = W < 760 ? 940 : 1420;
-    var turns = Math.PI * 2 * 8;
+    var n = W < 760 ? 1300 : 2100;
+    var turns = Math.PI * 2 * 13;
     for(var i = 0; i < n; i++){
       var t = Math.pow(i / n, 0.88);
       var a = t * turns + (Math.random() - 0.5) * 0.55;
       var rr = baseR * Math.pow(1 - t, 1.06) * (0.84 + Math.random() * 0.24);
       var pick = Math.random();
       var kind = 0;
-      if(pick > 0.962) kind = 3;
-      else if(pick > 0.836) kind = 2;
-      else if(pick > 0.618) kind = 1;
+      if(pick > 0.958) kind = 3;
+      else if(pick > 0.784) kind = 2;
+      else if(pick > 0.492) kind = 1;
       pts.push({
         t: t,
         a: a,
         r: rr,
-        sz: 0.95 + Math.random() * 1.55,
+        sz: 0.72 + Math.random() * 1.22,
         ph: Math.random() * Math.PI * 2,
         sp: 0.0009 + Math.random() * 0.0032,
         kind: kind
@@ -598,7 +598,8 @@
       var depth = (z3 / baseR + 1) * 0.5;
 
       var flick = reduce ? 0.82 : (0.42 + 0.58 * (0.5 + 0.5 * Math.sin(now * p.sp + p.ph)));
-      var alpha = (0.14 + 0.78 * depth) * flick;
+      var alpha = (0.11 + 0.72 * depth) * flick;
+      if(p.kind === 1) alpha = Math.min(1, alpha * 1.18);
       if(p.kind === 2) alpha = Math.min(1, alpha * 1.28);
       if(p.kind === 3) alpha = Math.min(1, alpha * 1.15);
 
